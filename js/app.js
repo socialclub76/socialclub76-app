@@ -6,6 +6,8 @@
 const CONFIG = {
   telegram: 'https://t.me/socialclub76',
   signal:   'https://signal.me/#eu/9qdkMgh1Q4H00k4wTUAUXpMrS5GBfUObWj_NX-e2qJEeZ51WFbJLKZ_KGB08dJQd',
+  potatos:  'https://t.me/canalpotatos',
+  luffa:   'https://t.me/canalluffa',
   dataUrl:  'data/',           // Relative path to data folder
   serverUrl: null,             // Set to server URL when bot is running (e.g. 'http://localhost:3076/')
 };
@@ -73,11 +75,14 @@ if (tg) {
 // ══════════════════════════════════════════════════════════
 // DOM ELEMENTS
 // ══════════════════════════════════════════════════════════
-const $cards    = document.getElementById('cards');
-const $backdrop = document.getElementById('sheet-backdrop');
-const $sheet    = document.getElementById('order-sheet');
-const $fab      = document.getElementById('fab-order');
-const $toast    = document.getElementById('toast');
+const $cards     = document.getElementById('cards');
+const $backdrop  = document.getElementById('sheet-backdrop');
+const $sheet     = document.getElementById('order-sheet');
+const $fab       = document.getElementById('fab-order');
+const $toast     = document.getElementById('toast');
+const $sheetTabs = document.querySelectorAll('.sheet-tab');
+const $sheetPanels = document.querySelectorAll('.sheet-panel');
+const $menuList  = document.getElementById('sheet-menu-list');
 
 // ══════════════════════════════════════════════════════════
 // FLOATING PARTICLES — Rainbow Ambiance
@@ -430,6 +435,24 @@ function getSelectedRating() {
   return checked ? parseInt(checked.value) : 0;
 }
 
+function renderSheetMenu() {
+  if (!$menuList) return;
+  $menuList.innerHTML = CATALOGUE.map(p => `
+    <button class="menu-item" type="button" data-product="${p.id}">
+      ${p.name} · ${p.type}
+    </button>
+  `).join('');
+
+  $menuList.querySelectorAll('.menu-item').forEach(button => {
+    button.addEventListener('click', () => {
+      const productId = button.dataset.product;
+      closeSheet();
+      openProduct(productId);
+    });
+  });
+}
+
+
 async function handleReviewSubmit() {
   if (!current) return;
 
@@ -503,6 +526,8 @@ function closeSheet() {
 document.getElementById('btn-telegram').href = CONFIG.telegram;
 document.getElementById('btn-signal').href   = CONFIG.signal;
 
+autoBindSheetTabs();
+
 $fab.addEventListener('click', openSheet);
 $backdrop.addEventListener('click', closeSheet);
 document.getElementById('sheet-close').addEventListener('click', closeSheet);
@@ -519,6 +544,16 @@ document.getElementById('back-btn').addEventListener('click', goHome);
 // Review form submit
 document.getElementById('review-submit-btn').addEventListener('click', handleReviewSubmit);
 
+function autoBindSheetTabs() {
+  $sheetTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      $sheetTabs.forEach(t => t.classList.toggle('active', t === tab));
+      $sheetPanels.forEach(panel => panel.classList.toggle('active', panel.id === `sheet-panel-${target}`));
+    });
+  });
+}
+
 // ══════════════════════════════════════════════════════════
 // INITIALIZATION
 // ══════════════════════════════════════════════════════════
@@ -531,6 +566,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Build UI
   buildCards();
+  renderSheetMenu();
   
   // Apply Tilt to static elements
   document.querySelectorAll('.tilt-element').forEach(initTilt);

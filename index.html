@@ -40,6 +40,7 @@
       </div>
       <h1 class="hero-brand shine-effect">Social Club <span>76</span></h1>
       <p class="hero-tagline">Rouen · L'excellence absolue</p>
+      <p class="hero-subtitle">Rockstar mode · Interface premium</p>
       
       <div class="hero-badge">
         <div class="hero-badge-dot"></div>
@@ -171,7 +172,7 @@
     <span class="fab-icon">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
     </span>
-    <span class="fab-text">Prendre Commande</span>
+    <span class="fab-text">Plug Hub</span>
   </button>
 </div>
 
@@ -180,33 +181,85 @@
 <div class="sheet glass-sheet" id="order-sheet">
   <div class="sheet-handle" id="sheet-handle"></div>
   <div class="sheet-header">
-    <div class="sheet-title shine-effect">Accès Commande</div>
-    <div class="sheet-sub">Choisissez une ligne sécurisée</div>
+    <div class="sheet-title shine-effect">Plug Hub</div>
+    <div class="sheet-sub">Liens, Infos et Menu directement</div>
   </div>
-  
-  <a class="order-btn glass-card tilt-element" id="btn-telegram" href="#" target="_blank">
-    <div class="glare"></div>
-    <div class="order-btn-icon tg">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-    </div>
-    <div class="order-btn-text">
-      <div class="order-btn-lbl">Telegram</div>
-      <div class="order-btn-desc">Contact rapide & chiffré</div>
-    </div>
-    <div class="order-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
-  </a>
 
-  <a class="order-btn glass-card tilt-element" id="btn-signal" href="#" target="_blank">
-    <div class="glare"></div>
-    <div class="order-btn-icon sg">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+  <div class="sheet-tabs" role="tablist">
+    <button class="sheet-tab active" data-tab="links" type="button">Liens</button>
+    <button class="sheet-tab" data-tab="infos" type="button">Infos</button>
+    <button class="sheet-tab" data-tab="menu" type="button">Menu</button>
+  </div>
+
+  <div class="sheet-panel active" id="sheet-panel-links">
+    <a class="order-btn glass-card tilt-element" href="https://t.me/canalpotatos" target="_blank">
+      <div class="glare"></div>
+      <div class="order-btn-icon tg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2L7.5 12.75 10 22 12.75 14.5 21 2"></path></svg>
+      </div>
+      <div class="order-btn-text">
+        <div class="order-btn-lbl">Canal Potatos</div>
+        <div class="order-btn-desc">Accès direct au groupe</div>
+      </div>
+      <div class="order-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+    </a>
+
+    <a class="order-btn glass-card tilt-element" href="https://t.me/canalluffa" target="_blank">
+      <div class="glare"></div>
+      <div class="order-btn-icon tg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2L7.5 12.75 10 22 12.75 14.5 21 2"></path></svg>
+      </div>
+      <div class="order-btn-text">
+        <div class="order-btn-lbl">Canal Luffa</div>
+        <div class="order-btn-desc">Nouveautés & commandes</div>
+      </div>
+      <div class="order-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+    </a>
+
+    <a class="order-btn glass-card tilt-element" id="btn-signal" href="#" target="_blank">
+      <div class="glare"></div>
+      <div class="order-btn-icon sg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+      </div>
+      <div class="order-btn-text">
+        <div class="order-btn-lbl">Signal</div>
+        <div class="order-btn-desc">Lien commande sécurisé</div>
+      </div>
+      <div class="order-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+    </a>
+
+    <a class="order-btn glass-card tilt-element" id="btn-telegram" href="#" target="_blank">
+      <div class="glare"></div>
+      <div class="order-btn-icon tg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+      </div>
+      <div class="order-btn-text">
+        <div class="order-btn-lbl">Telegram</div>
+        <div class="order-btn-desc">Lien commande instantanée</div>
+      </div>
+      <div class="order-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+    </a>
+  </div>
+
+  <div class="sheet-panel" id="sheet-panel-infos">
+    <div class="info-card glass-card">
+      <h3>Infos du Plug</h3>
+      <p>Équipe discrète · Commandes sur invitation · Livraison premium dans Rouen et environs.</p>
     </div>
-    <div class="order-btn-text">
-      <div class="order-btn-lbl">Signal</div>
-      <div class="order-btn-desc">100% Anonyme & Sécurisé</div>
+    <div class="info-card glass-card">
+      <h3>Horaires</h3>
+      <p>Disponible 7j/7 de 10h à 22h. Réponse ultra rapide via Telegram / Signal.</p>
     </div>
-    <div class="order-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
-  </a>
+    <div class="info-card glass-card">
+      <h3>Sécurité</h3>
+      <p>Communication chiffrée, suivi VIP, respect total de la confidentialité.</p>
+    </div>
+  </div>
+
+  <div class="sheet-panel" id="sheet-panel-menu">
+    <div class="menu-note">Choisis un produit ou découvre le menu complet du plugs.</div>
+    <div class="menu-list" id="sheet-menu-list"></div>
+  </div>
 
   <button class="sheet-close glass-button" id="sheet-close">Retour au Menu</button>
 </div>
