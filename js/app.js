@@ -430,18 +430,22 @@ function getSelectedRating() {
 }
 
 function renderSheetMenu() {
-  if (!$menuList) return;
-  $menuList.innerHTML = CATALOGUE.map(p => `
-    <button class="menu-item" type="button" data-product="${p.id}">
-      ${p.name} · ${p.type}
-    </button>
-  `).join('');
+  ['sheet-menu-list', 'hub-menu-list'].forEach(containerId => {
+    const menuElement = document.getElementById(containerId);
+    if (!menuElement) return;
+    menuElement.innerHTML = CATALOGUE.map(p => `
+      <button class="menu-item" type="button" data-product="${p.id}">
+        <span class="menu-item-name">${p.name}</span>
+        <span class="menu-item-meta">${p.type} · ${p.specs.origin}</span>
+      </button>
+    `).join('');
 
-  $menuList.querySelectorAll('.menu-item').forEach(button => {
-    button.addEventListener('click', () => {
-      const productId = button.dataset.product;
-      closeSheet();
-      openProduct(productId);
+    menuElement.querySelectorAll('.menu-item').forEach(button => {
+      button.addEventListener('click', () => {
+        const productId = button.dataset.product;
+        if (containerId === 'sheet-menu-list') closeSheet();
+        openProduct(productId);
+      });
     });
   });
 }
