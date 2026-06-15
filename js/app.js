@@ -539,7 +539,8 @@ function autoBindFooterHub() {
     links: document.getElementById('hub-panel-links'),
   };
 
-  const activateHubTab = (tabKey) => {
+  const rootHome = document.getElementById('view-home');
+  const activateHubTab = (tabKey, hideIntro = false) => {
     document.querySelectorAll('.hub-btn').forEach(h => h.classList.toggle('active', h.dataset.tab === tabKey));
     Object.keys(panels).forEach(k => {
       const el = panels[k];
@@ -547,17 +548,20 @@ function autoBindFooterHub() {
       if (k === tabKey) { el.style.display = ''; el.classList.add('active'); }
       else { el.style.display = 'none'; el.classList.remove('active'); }
     });
+    if (hideIntro && rootHome) rootHome.classList.add('hub-active');
+    const hubContent = document.getElementById('hub-content');
+    if (hubContent) hubContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   [btnMenu, btnInfo, btnLinks].forEach(b => {
     if (!b) return;
     b.addEventListener('click', (e) => {
       e.preventDefault();
-      activateHubTab(b.dataset.tab);
+      activateHubTab(b.dataset.tab, true);
     });
   });
 
-  activateHubTab('links');
+  activateHubTab('links', false);
 }
 
 // ══════════════════════════════════════════════════════════
