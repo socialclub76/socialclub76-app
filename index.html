@@ -42,10 +42,7 @@
       <p class="hero-tagline">Rouen · L'excellence absolue</p>
       <p class="hero-subtitle">Rockstar mode · Interface premium</p>
       
-      <div class="hero-badge">
-        <div class="hero-badge-dot"></div>
-        <span class="hero-badge-text">Collection Privée 2026</span>
-      </div>
+      <!-- badge removed per user request -->
     </header>
 
     <!-- Présentation uniquement — la liste des variétés a été retirée -->
@@ -55,7 +52,35 @@
     </div>
 
     <div class="presentation glass-card" id="presentation">
-      <p>Bienvenue sur Social Club 76 — expérience premium, service discret. Utilisez le menu en bas pour accéder rapidement aux Liens, Infos et au Menu du plug.</p>
+      <h2 class="presentation-title">Rockstar Mode · Interface Premium</h2>
+      <p class="presentation-text">Bienvenue sur Social Club 76 — expérience premium, discrétion absolue. Utilisez le menu en bas pour naviguer entre <strong>Liens</strong>, <strong>Infos</strong> et le <strong>Menu</strong>.</p>
+    </div>
+
+    <!-- Hub inline panels (will be controlled by footer buttons) -->
+    <div id="hub-content" class="hub-content">
+      <div class="hub-panel" id="hub-panel-links">
+        <a class="hub-link" href="https://t.me/canalpotatos" target="_blank">Canal Potatos — Accès direct</a>
+        <a class="hub-link" href="https://t.me/canalluffa" target="_blank">Canal Luffa — Nouveautés & commandes</a>
+        <a class="hub-link" href="#" id="hub-telegram-link">Telegram — Lien commande</a>
+        <a class="hub-link" href="#" id="hub-signal-link">Signal — Lien commande</a>
+      </div>
+      <div class="hub-panel" id="hub-panel-infos" style="display:none">
+        <div class="info-card glass-card">
+          <h3>Infos du Plug</h3>
+          <p>Équipe discrète · Commandes sur invitation · Livraison premium dans Rouen et environs.</p>
+        </div>
+        <div class="info-card glass-card">
+          <h3>Horaires</h3>
+          <p>Disponible 7j/7 de 10h à 22h. Réponse ultra rapide via Telegram / Signal.</p>
+        </div>
+      </div>
+      <div class="hub-panel" id="hub-panel-menu" style="display:none">
+        <div class="menu-note">Menu simplifié — contactez via Telegram pour commandes et prix.</div>
+        <div class="menu-list" id="hub-menu-list">
+          <div class="menu-item">Top Shelf — Contactez pour disponibilité</div>
+          <div class="menu-item">Exclusif — Sur demande</div>
+        </div>
+      </div>
     </div>
     <div class="footer-copy">Social Club 76 © 2026 · Confidential & Premium</div>
   </section>
@@ -171,15 +196,21 @@
 <!-- FOOTER HUB — 3 onglets (Menu / Info / Liens) -->
 <div class="footer-hub" role="navigation" aria-label="Plug Hub">
   <button class="hub-btn" id="hub-menu" data-tab="menu" aria-label="Menu">
-    <div class="hub-icon">🍬</div>
+    <div class="hub-icon">
+      <svg viewBox="0 0 24 24" class="hub-leaf" aria-hidden="true"><path d="M12 2s4 3 4 6-4 6-4 6-4-3-4-6 4-6 4-6zM12 22s-1-4 2-7c3-3 6-4 6-4s1 3-2 6c-3 3-6 5-6 5z" fill="currentColor"/></svg>
+    </div>
     <div class="hub-label">Menu</div>
   </button>
   <button class="hub-btn" id="hub-info" data-tab="infos" aria-label="Info">
-    <div class="hub-icon">ℹ️</div>
+    <div class="hub-icon">
+      <svg viewBox="0 0 24 24" class="hub-leaf" aria-hidden="true"><path d="M12 2s4 3 4 6-4 6-4 6-4-3-4-6 4-6 4-6zM12 22s-1-4 2-7c3-3 6-4 6-4s1 3-2 6c-3 3-6 5-6 5z" fill="currentColor"/></svg>
+    </div>
     <div class="hub-label">Info</div>
   </button>
   <button class="hub-btn" id="hub-links" data-tab="links" aria-label="Liens">
-    <div class="hub-icon">🔗</div>
+    <div class="hub-icon">
+      <svg viewBox="0 0 24 24" class="hub-leaf" aria-hidden="true"><path d="M12 2s4 3 4 6-4 6-4 6-4-3-4-6 4-6 4-6zM12 22s-1-4 2-7c3-3 6-4 6-4s1 3-2 6c-3 3-6 5-6 5z" fill="currentColor"/></svg>
+    </div>
     <div class="hub-label">Liens</div>
   </button>
 </div>

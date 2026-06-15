@@ -75,14 +75,7 @@ if (tg) {
 // ══════════════════════════════════════════════════════════
 // DOM ELEMENTS
 // ══════════════════════════════════════════════════════════
-const $cards     = document.getElementById('cards');
-const $backdrop  = document.getElementById('sheet-backdrop');
-const $sheet     = document.getElementById('order-sheet');
-const $fab       = document.getElementById('fab-order');
-const $toast     = document.getElementById('toast');
-const $sheetTabs = document.querySelectorAll('.sheet-tab');
-const $sheetPanels = document.querySelectorAll('.sheet-panel');
-const $menuList  = document.getElementById('sheet-menu-list');
+let $cards, $backdrop, $sheet, $fab, $toast, $sheetTabs, $sheetPanels, $menuList;
 
 // ══════════════════════════════════════════════════════════
 // FLOATING PARTICLES — Rainbow Ambiance
@@ -523,25 +516,7 @@ function closeSheet() {
   $sheet.classList.remove('open');
   document.body.style.overflow = '';
 }
-document.getElementById('btn-telegram').href = CONFIG.telegram;
-document.getElementById('btn-signal').href   = CONFIG.signal;
-
-autoBindSheetTabs();
-autoBindFooterHub();
-$backdrop.addEventListener('click', closeSheet);
-document.getElementById('sheet-close').addEventListener('click', closeSheet);
-document.getElementById('sheet-handle').addEventListener('click', closeSheet);
-
-let sheetStartY = 0;
-$sheet.addEventListener('touchstart', e => { sheetStartY = e.touches[0].clientY; }, { passive: true });
-$sheet.addEventListener('touchend', e => {
-  if (e.changedTouches[0].clientY - sheetStartY > 80) closeSheet();
-}, { passive: true });
-
-document.getElementById('back-btn').addEventListener('click', goHome);
-
-// Review form submit
-document.getElementById('review-submit-btn').addEventListener('click', handleReviewSubmit);
+// DOM-dependent bindings are initialized inside DOMContentLoaded
 
 function autoBindSheetTabs() {
   $sheetTabs.forEach(tab => {
@@ -554,16 +529,30 @@ function autoBindSheetTabs() {
 }
 
 function autoBindFooterHub() {
+  // Footer buttons now switch inline hub panels instead of opening the sheet
   const btnMenu = document.getElementById('hub-menu');
   const btnInfo = document.getElementById('hub-info');
   const btnLinks = document.getElementById('hub-links');
+  const panels = {
+    menu: document.getElementById('hub-panel-menu'),
+    infos: document.getElementById('hub-panel-infos'),
+    links: document.getElementById('hub-panel-links'),
+  };
+
   [btnMenu, btnInfo, btnLinks].forEach(b => {
     if (!b) return;
-    b.addEventListener('click', () => {
+    b.addEventListener('click', (e) => {
+      e.preventDefault();
       const tab = b.dataset.tab;
-      openSheet();
-      $sheetTabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-      $sheetPanels.forEach(panel => panel.classList.toggle('active', panel.id === `sheet-panel-${tab}`));
+      // Visual active state on footer
+      document.querySelectorAll('.hub-btn').forEach(h => h.classList.toggle('active', h === b));
+      // Show the matching inline panel
+      Object.keys(panels).forEach(k => {
+        const el = panels[k];
+        if (!el) return;
+        if (k === tab) { el.style.display = ''; el.classList.add('active'); }
+        else { el.style.display = 'none'; el.classList.remove('active'); }
+      });
     });
   });
 }
@@ -578,11 +567,55 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Load data
   await Promise.all([loadCatalogue(), loadReviews()]);
 
+  // Query DOM elements now that DOM is ready
+  $cards = document.getElementById('cards');
+  $backdrop = document.getElementById('sheet-backdrop');
+  $sheet = document.getElementById('order-sheet');
+  $fab = document.getElementById('fab-order');
+  $toast = document.getElementById('toast');
+  $sheetTabs = document.querySelectorAll('.sheet-tab');
+  $sheetPanels = document.querySelectorAll('.sheet-panel');
+  $menuList = document.getElementById('sheet-menu-list');
+
   // Build UI
   renderSheetMenu();
   
   // Apply Tilt to static elements
   document.querySelectorAll('.tilt-element').forEach(initTilt);
+
+  // Setup sheet buttons and bindings (guarded)
+  const btnTelegram = document.getElementById('btn-telegram');
+  const btnSignal = document.getElementById('btn-signal');
+  if (btnTelegram) btnTelegram.href = CONFIG.telegram;
+  if (btnSignal) btnSignal.href = CONFIG.signal;
+  // Also wire inline hub links
+  const hubTele = document.getElementById('hub-telegram-link');
+  const hubSignal = document.getElementById('hub-signal-link');
+  if (hubTele) hubTele.href = CONFIG.potatos || CONFIG.telegram;
+  if (hubSignal) hubSignal.href = CONFIG.signal;
+
+  autoBindSheetTabs();
+  autoBindFooterHub();
+
+  if ($backdrop) $backdrop.addEventListener('click', closeSheet);
+  const sheetClose = document.getElementById('sheet-close');
+  const sheetHandle = document.getElementById('sheet-handle');
+  if (sheetClose) sheetClose.addEventListener('click', closeSheet);
+  if (sheetHandle) sheetHandle.addEventListener('click', closeSheet);
+
+  let sheetStartY = 0;
+  if ($sheet) {
+    $sheet.addEventListener('touchstart', e => { sheetStartY = e.touches[0].clientY; }, { passive: true });
+    $sheet.addEventListener('touchend', e => {
+      if (e.changedTouches[0].clientY - sheetStartY > 80) closeSheet();
+    }, { passive: true });
+  }
+
+  const backBtn = document.getElementById('back-btn');
+  if (backBtn) backBtn.addEventListener('click', goHome);
+
+  const reviewSubmitBtn = document.getElementById('review-submit-btn');
+  if (reviewSubmitBtn) reviewSubmitBtn.addEventListener('click', handleReviewSubmit);
 
   show('view-home');
 });
