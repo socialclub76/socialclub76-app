@@ -172,8 +172,10 @@ button,a { font-family:inherit; cursor:pointer; border:none; background:none; te
   position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
 }
 .particle {
-  position:absolute; border-radius:50%; pointer-events:none;
+  position:absolute; border-radius:50%; pointer-events:none; mix-blend-mode:screen;
   animation: particleRise linear infinite;
+  filter: blur(8px);
+  will-change: transform, opacity;
 }
 @keyframes particleRise {
   0% { transform: translateY(100vh) scale(0); opacity:0; }
@@ -514,12 +516,16 @@ button,a { font-family:inherit; cursor:pointer; border:none; background:none; te
 /* ═══════════════════════════════════════════════════════════
    FLOATING ACTION BUTTON — Neon Premium
    ═══════════════════════════════════════════════════════════ */
-.fab-wrap {
-  position:fixed; bottom:0; left:50%; transform:translateX(-50%);
-  width:100%; max-width:520px; padding:20px 20px 24px;
-  background: linear-gradient(to top, var(--bg-deep) 40%, rgba(2,0,16,0.8) 70%, transparent);
-  z-index:100; pointer-events:none;
+.footer-hub {
+  position:fixed; bottom:8px; left:50%; transform:translateX(-50%);
+  width:calc(100% - 32px); max-width:520px; height:72px;
+  background:#fff; border-radius:40px; display:flex; align-items:center; justify-content:space-around;
+  padding:8px 14px; box-shadow:0 8px 30px rgba(2,2,6,0.6); z-index:120; pointer-events:all;
 }
+.hub-btn { background:transparent; border:0; display:flex; flex-direction:column; align-items:center; gap:6px; color:#ff7ab0; font-size:12px; }
+.hub-icon { font-size:20px; line-height:1; }
+.hub-label { font-size:12px; color:#ff7ab0; }
+
 .fab {
   width:100%; padding:18px; border-radius:var(--r-md);
   background: linear-gradient(135deg, rgba(255,217,91,0.95) 0%, rgba(255,217,91,0.85) 35%, rgba(255,255,255,0.08) 100%);

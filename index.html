@@ -34,7 +34,7 @@
       <div class="hero-logo-wrap">
         <div class="hero-logo-glow"></div>
         <div class="hero-logo tilt-element">
-          <img src="assets/images/logo.jpg" alt="SC76" onerror="this.style.display='none'"/>
+          <img src="assets/logo.png" alt="SC76" onerror="this.style.display='none'"/>
           <div class="glare"></div>
         </div>
       </div>
@@ -48,12 +48,15 @@
       </div>
     </header>
 
+    <!-- Présentation uniquement — la liste des variétés a été retirée -->
     <div class="sec-head">
-      <span class="sec-lbl">Catalogue</span>
+      <span class="sec-lbl">Présentation</span>
       <div class="sec-line"></div>
     </div>
 
-    <nav class="cards" id="cards" role="list"></nav>
+    <div class="presentation glass-card" id="presentation">
+      <p>Bienvenue sur Social Club 76 — expérience premium, service discret. Utilisez le menu en bas pour accéder rapidement aux Liens, Infos et au Menu du plug.</p>
+    </div>
     <div class="footer-copy">Social Club 76 © 2026 · Confidential & Premium</div>
   </section>
 
@@ -165,14 +168,19 @@
 
 </div>
 
-<!-- FLOATING ACTION BUTTON -->
-<div class="fab-wrap">
-  <button class="fab glass-button" id="fab-order">
-    <div class="fab-glow"></div>
-    <span class="fab-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    </span>
-    <span class="fab-text">Plug Hub</span>
+<!-- FOOTER HUB — 3 onglets (Menu / Info / Liens) -->
+<div class="footer-hub" role="navigation" aria-label="Plug Hub">
+  <button class="hub-btn" id="hub-menu" data-tab="menu" aria-label="Menu">
+    <div class="hub-icon">🍬</div>
+    <div class="hub-label">Menu</div>
+  </button>
+  <button class="hub-btn" id="hub-info" data-tab="infos" aria-label="Info">
+    <div class="hub-icon">ℹ️</div>
+    <div class="hub-label">Info</div>
+  </button>
+  <button class="hub-btn" id="hub-links" data-tab="links" aria-label="Liens">
+    <div class="hub-icon">🔗</div>
+    <div class="hub-label">Liens</div>
   </button>
 </div>
 

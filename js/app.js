@@ -14,10 +14,7 @@ const CONFIG = {
 
 // ── Fallback Catalogue (used if JSON can't load) ─────────
 const FALLBACK_CATALOGUE = [
-  {
-    id: 'jaune-mousseux', name: 'Jaune Mousseux', type: 'Exclusif',
-    specs: { origin: 'Indoor Control', grade: 'Artisanal', thc: 'Très Élevé', terpene: 'Agrumes / Terreux' },
-    desc: 'Une variété dorée aux arômes complexes et envoûtants. Des notes de citrus clair, de levure boulangère et d\'herbes fraîches qui se fondent en une expérience sensorielle unique. Les trichomes ambrés confèrent à cette sélection une luminosité incomparable.',
+
     heroImg: null, images: [], video: null,
   },
   {
@@ -90,33 +87,34 @@ const $menuList  = document.getElementById('sheet-menu-list');
 function createParticles() {
   const container = document.getElementById('particles');
   if (!container) return;
-  
   const colors = [
-    'rgba(255, 45, 149, 0.6)',   // pink
-    'rgba(176, 38, 255, 0.6)',   // purple
-    'rgba(45, 122, 255, 0.6)',   // blue
-    'rgba(0, 240, 255, 0.6)',    // cyan
-    'rgba(0, 255, 135, 0.6)',    // green
-    'rgba(255, 230, 77, 0.5)',   // yellow
-    'rgba(255, 107, 45, 0.5)',   // orange
+    'rgba(255, 45, 149, 0.65)',
+    'rgba(255, 217, 91, 0.55)',
+    'rgba(132, 210, 255, 0.5)',
+    'rgba(161, 86, 255, 0.45)',
+    'rgba(34, 160, 255, 0.45)'
   ];
 
-  for (let i = 0; i < 25; i++) {
+  // denser, larger, glowy particles for a Rockstar neon ambiance
+  for (let i = 0; i < 48; i++) {
     const p = document.createElement('div');
     p.className = 'particle';
-    const size = Math.random() * 4 + 1;
+    const size = Math.random() * 14 + 4; // larger
     const color = colors[Math.floor(Math.random() * colors.length)];
-    const duration = Math.random() * 20 + 15;
+    const duration = Math.random() * 30 + 20;
     const delay = Math.random() * 20;
-    const left = Math.random() * 100;
+    const left = Math.random() * 110 - 5;
+    const opacity = 0.2 + Math.random() * 0.9;
 
     p.style.cssText = `
       width:${size}px; height:${size}px;
       background:${color};
-      box-shadow: 0 0 ${size * 3}px ${color};
-      left:${left}%;
+      left:${left}%; top:${Math.random() * 100}%;
+      opacity:${opacity};
+      box-shadow: 0 0 ${size * 2}px ${color};
       animation-duration:${duration}s;
       animation-delay:${delay}s;
+      transform: translateY(0) scale(${0.6 + Math.random() * 1.2});
     `;
     container.appendChild(p);
   }
@@ -522,13 +520,11 @@ function closeSheet() {
   $sheet.classList.remove('open');
   document.body.style.overflow = '';
 }
-
 document.getElementById('btn-telegram').href = CONFIG.telegram;
 document.getElementById('btn-signal').href   = CONFIG.signal;
 
 autoBindSheetTabs();
-
-$fab.addEventListener('click', openSheet);
+autoBindFooterHub();
 $backdrop.addEventListener('click', closeSheet);
 document.getElementById('sheet-close').addEventListener('click', closeSheet);
 document.getElementById('sheet-handle').addEventListener('click', closeSheet);
@@ -554,6 +550,21 @@ function autoBindSheetTabs() {
   });
 }
 
+function autoBindFooterHub() {
+  const btnMenu = document.getElementById('hub-menu');
+  const btnInfo = document.getElementById('hub-info');
+  const btnLinks = document.getElementById('hub-links');
+  [btnMenu, btnInfo, btnLinks].forEach(b => {
+    if (!b) return;
+    b.addEventListener('click', () => {
+      const tab = b.dataset.tab;
+      openSheet();
+      $sheetTabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+      $sheetPanels.forEach(panel => panel.classList.toggle('active', panel.id === `sheet-panel-${tab}`));
+    });
+  });
+}
+
 // ══════════════════════════════════════════════════════════
 // INITIALIZATION
 // ══════════════════════════════════════════════════════════
@@ -565,7 +576,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   await Promise.all([loadCatalogue(), loadReviews()]);
 
   // Build UI
-  buildCards();
   renderSheetMenu();
   
   // Apply Tilt to static elements
