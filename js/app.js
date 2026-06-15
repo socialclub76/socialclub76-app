@@ -14,31 +14,34 @@ const CONFIG = {
 
 // ── Fallback Catalogue (used if JSON can't load) ─────────
 const FALLBACK_CATALOGUE = [
-
+  {
+    id: 'jaune-mousseux', name: 'Jaune Mousseux', type: 'Exclusif',
+    specs: { origin: 'Indoor Control', grade: 'Artisanal', thc: 'Très Élevé', terpene: 'Agrumes / Terreux' },
+    desc: 'Une sélection dorée aux arômes complexes et lumineux.',
     heroImg: null, images: [], video: null,
   },
   {
     id: 'calimousse', name: 'Calimousse', type: 'Rare',
     specs: { origin: 'California', grade: 'Sélection', thc: 'Élevé', terpene: 'Fruité / Musqué' },
-    desc: 'La douceur californienne rencontre la mousse européenne dans un mariage de terpènes exceptionnel. Profil aromatique fruité, terreux et légèrement musqué. Une relaxation profonde et progressive pour les connaisseurs.',
+    desc: 'La douceur californienne rencontre la mousse européenne.',
     heroImg: null, images: [], video: null,
   },
   {
     id: 'weed-hollandaise', name: 'Weed Hollandaise', type: 'Classic',
-    specs: { origin: 'Amsterdam', grade: 'Premium', thc: 'Modéré', terpene: 'Floral / Epicé' },
-    desc: 'L\'héritage hollandais dans toute sa splendeur. Cultivée selon des traditions séculaires dans les meilleures serres d\'Amsterdam. Clarté mentale, créativité et un parfum floral délicat qui évoque les canaux au lever du soleil.',
+    specs: { origin: 'Amsterdam', grade: 'Premium', thc: 'Modéré', terpene: 'Floral / Épicé' },
+    desc: 'Héritage hollandais, parfum floral délicat et équilibre parfait.',
     heroImg: null, images: [], video: null,
   },
   {
     id: 'cali-usa', name: 'Cali USA', type: 'Top Shelf',
     specs: { origin: 'Los Angeles', grade: 'Elite', thc: 'Maximum', terpene: 'Exotique / Gas' },
-    desc: 'Directement inspiré du soleil californien. Des trichomes cristallins sur des nuances violettes et vertes profondes. Parfum envoûtant mêlant fruits exotiques, gas et notes sucrées. La référence absolue du marché premium.',
+    desc: 'Inspirée du soleil californien, profil exotique et sucré.',
     heroImg: null, images: [], video: null,
   },
   {
     id: 'dry-sift', name: 'Dry-Sift 120u', type: 'Concentré',
     specs: { origin: 'Dihram Farm', grade: 'Full Melt', thc: 'Extrême', terpene: 'Résine / Pin' },
-    desc: 'L\'art ancestral du tamisage à sec porté à sa perfection ultime. 120 microns de pureté absolue. Richesse terpénique exceptionnelle, pour les palais les plus exigeants. Un concentré de très haute voltige.',
+    desc: 'Concentré de pureté extrême, riche en terpènes résineux.',
     heroImg: null, images: [], video: null,
   },
 ];
