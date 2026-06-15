@@ -539,22 +539,25 @@ function autoBindFooterHub() {
     links: document.getElementById('hub-panel-links'),
   };
 
+  const activateHubTab = (tabKey) => {
+    document.querySelectorAll('.hub-btn').forEach(h => h.classList.toggle('active', h.dataset.tab === tabKey));
+    Object.keys(panels).forEach(k => {
+      const el = panels[k];
+      if (!el) return;
+      if (k === tabKey) { el.style.display = ''; el.classList.add('active'); }
+      else { el.style.display = 'none'; el.classList.remove('active'); }
+    });
+  };
+
   [btnMenu, btnInfo, btnLinks].forEach(b => {
     if (!b) return;
     b.addEventListener('click', (e) => {
       e.preventDefault();
-      const tab = b.dataset.tab;
-      // Visual active state on footer
-      document.querySelectorAll('.hub-btn').forEach(h => h.classList.toggle('active', h === b));
-      // Show the matching inline panel
-      Object.keys(panels).forEach(k => {
-        const el = panels[k];
-        if (!el) return;
-        if (k === tab) { el.style.display = ''; el.classList.add('active'); }
-        else { el.style.display = 'none'; el.classList.remove('active'); }
-      });
+      activateHubTab(b.dataset.tab);
     });
   });
+
+  activateHubTab('links');
 }
 
 // ══════════════════════════════════════════════════════════
