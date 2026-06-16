@@ -236,12 +236,11 @@ function openProduct(id) {
 function goHome() {
   show('view-home');
   if (tg?.BackButton) tg.BackButton.hide();
-  // Reset hub state to show intro
-  const rootHome = document.getElementById('view-home');
-  if (rootHome) rootHome.classList.remove('hub-active');
-  // Reset footer hub to 'links' tab
-  const hubContent = document.getElementById('hub-content');
-  if (hubContent) hubContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  
+  // Reset footer
+  document.querySelectorAll('.hub-btn').forEach(h => h.classList.remove('active'));
+  const linksBtn = document.getElementById('hub-links');
+  if (linksBtn) linksBtn.classList.add('active');
 }
 
 // ══════════════════════════════════════════════════════════

@@ -1241,3 +1241,28 @@ textarea.form-input { resize:vertical; min-height:100px; line-height:1.7; }
 #hub-filtered-view {
   padding-bottom: 80px;
 }
+
+/* Fix Responsive Product Detail */
+@media (max-width: 540px) {
+  .det-name { font-size: 28px; letter-spacing: 2px; }
+  .det-nav { top: 12px; left: 12px; right: 12px; }
+  .det-nav-logo img { width: 36px; height: 36px; }
+  .det-content { padding: 0 18px; margin-top: -120px; }
+  
+  /* Stars fix mobile */
+  .det-rating .star,
+  .review-stars .star,
+  .star-selector label svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .star-selector label svg {
+    filter: drop-shadow(0 0 6px rgba(255,217,91,0.6));
+  }
+}
+
+/* Meilleur hover/touch sur mobile */
+.card, .spec-item-big, .review-card {
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
