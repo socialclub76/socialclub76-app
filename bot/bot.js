@@ -16,7 +16,7 @@ const crypto = require('crypto');
 // CONFIGURATION — À MODIFIER
 // ══════════════════════════════════════════════════════════
 const BOT_TOKEN = '8347982980:AAGM4okwAGJbfZxIM9sLoW-gxH65do5Zrqs';       // <-- Remplace par ton token @BotFather
-const ADMIN_IDS = [8585398317];                     // <-- Ajoute ton ID Telegram (ex: [123456789])
+const ADMIN_IDS = [8585398317, 8799821161];                   // <-- Ajoute ton ID Telegram (ex: [123456789])
 const PORT = 3076;
 
 // Paths
