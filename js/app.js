@@ -4,13 +4,26 @@
 // ══════════════════════════════════════════════════════════
 
 const CONFIG = {
-  telegram: 'https://t.me/socialclub76',
-  signal:   'https://signal.me/#eu/9qdkMgh1Q4H00k4wTUAUXpMrS5GBfUObWj_NX-e2qJEeZ51WFbJLKZ_KGB08dJQd',
-  potatos:  'https://t.me/canalpotatos',
-  luffa:   'https://t.me/canalluffa',
-  dataUrl:  'data/',           // Relative path to data folder
-  serverUrl: null,             // Set to server URL when bot is running (e.g. 'http://localhost:3076/')
+  dataUrl: 'data/',
+  serverUrl: null,
 };
+
+let LINKS = {
+  potatos: "https://t.me/canalpotatos",
+  luffa: "https://t.me/canalluffa",
+  telegram: "https://t.me/socialclub76",
+  signal: "https://signal.me/#eu/9qdkMgh1Q4H00k4wTUAUXpMrS5GBfUObWj_NX-e2qJEeZ51WFbJLKZ_KGB08dJQd"
+};
+
+async function loadLinks() {
+  try {
+    const base = CONFIG.serverUrl || CONFIG.dataUrl;
+    const res = await fetch(`${base}links.json?t=${Date.now()}`);
+    if (res.ok) LINKS = await res.json();
+  } catch(e) {
+    console.log("Using default links");
+  }
+}
 
 // ── Fallback Catalogue (used if JSON can't load) ─────────
 const FALLBACK_CATALOGUE = [
@@ -674,6 +687,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Load data
   await Promise.all([loadCatalogue(), loadReviews()]);
+  await loadLinks();
   $cards = document.getElementById('cards') || document.createElement('div'); // sécurité
   // Query DOM elements now that DOM is ready
   $cards = document.getElementById('cards');

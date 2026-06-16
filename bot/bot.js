@@ -80,6 +80,26 @@ function downloadFile(url, destPath) {
   });
 }
 
+// Liens dynamiques
+const LINKS_FILE = path.join(DATA_DIR, 'links.json');
+
+function getLinks() {
+  try {
+    return loadJSON(LINKS_FILE);
+  } catch(e) {
+    return {
+      potatos: "https://t.me/canalpotatos",
+      luffa: "https://t.me/canalluffa",
+      telegram: "https://t.me/socialclub76",
+      signal: "https://signal.me/#eu/9qdkMgh1Q4H00k4wTUAUXpMrS5GBfUObWj_NX-e2qJEeZ51WFbJLKZ_KGB08dJQd"
+    };
+  }
+}
+
+function saveLinks(data) {
+  saveJSON(LINKS_FILE, data);
+}
+
 // ══════════════════════════════════════════════════════════
 // EXPRESS API SERVER
 // ══════════════════════════════════════════════════════════
@@ -219,6 +239,7 @@ Bienvenue ! Voici tes commandes :
 /monid — Afficher ton ID Telegram
 /help — Réafficher ce message
 
+
 _Ton ID: ${msg.from.id}_
   `;
   bot.sendMessage(msg.chat.id, text, { parse_mode: 'MarkdownV2' }).catch(() => {
@@ -234,6 +255,30 @@ bot.onText(/\/help/, (msg) => {
 // ── /monid ──────────────────────────────────────────────
 bot.onText(/\/monid/, (msg) => {
   bot.sendMessage(msg.chat.id, `🆔 Ton ID Telegram : \`${msg.from.id}\``, { parse_mode: 'Markdown' });
+});
+
+// ── /lien <nom> <url> ─────────────────────────────────────
+bot.onText(/\/lien (\S+)\s+(.+)/, (msg, match) => {
+  if (!isAdmin(msg)) return deny(msg);
+  
+  const key = match[1].toLowerCase();
+  const url = match[2].trim();
+  
+  const validKeys = ['potatos', 'luffa', 'telegram', 'signal'];
+  
+  if (!validKeys.includes(key)) {
+    return bot.sendMessage(msg.chat.id, `❌ Clé invalide. Utilise : potatos, luffa, telegram ou signal`);
+  }
+  
+  if (!url.startsWith('http')) {
+    return bot.sendMessage(msg.chat.id, `⚠️ L'URL doit commencer par http/https`);
+  }
+  
+  const links = getLinks();
+  links[key] = url;
+  saveLinks(links);
+  
+  bot.sendMessage(msg.chat.id, `✅ Lien mis à jour !\n\n**${key}** → ${url}`, { parse_mode: 'Markdown' });
 });
 
 // ── /produits ───────────────────────────────────────────
