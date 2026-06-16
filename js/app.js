@@ -15,32 +15,32 @@ const CONFIG = {
 // ── Fallback Catalogue (used if JSON can't load) ─────────
 const FALLBACK_CATALOGUE = [
   {
-    id: 'jaune-mousseux', name: 'Jaune Mousseux', type: 'Exclusif',
-    specs: { origin: 'Indoor Control', grade: 'Artisanal', thc: 'Très Élevé', terpene: 'Agrumes / Terreux' },
+    id: 'jaune-mousseux', name: 'Jaune Mousseux', type: 'Hash',
+    specs: { origin: 'Indoor Control', tasting: 'Agrumes / Terreux' },
     desc: 'Une sélection dorée aux arômes complexes et lumineux.',
     heroImg: null, images: [], video: null,
   },
   {
-    id: 'calimousse', name: 'Calimousse', type: 'Rare',
-    specs: { origin: 'California', grade: 'Sélection', thc: 'Élevé', terpene: 'Fruité / Musqué' },
+    id: 'calimousse', name: 'Calimousse', type: 'Hash',
+    specs: { origin: 'California', tasting: 'Fruité / Musqué' },
     desc: 'La douceur californienne rencontre la mousse européenne.',
     heroImg: null, images: [], video: null,
   },
   {
-    id: 'weed-hollandaise', name: 'Weed Hollandaise', type: 'Classic',
-    specs: { origin: 'Amsterdam', grade: 'Premium', thc: 'Modéré', terpene: 'Floral / Épicé' },
+    id: 'weed-hollandaise', name: 'Weed Hollandaise', type: 'Weed',
+    specs: { origin: 'Amsterdam', tasting: 'Floral / Épicé' },
     desc: 'Héritage hollandais, parfum floral délicat et équilibre parfait.',
     heroImg: null, images: [], video: null,
   },
   {
-    id: 'cali-usa', name: 'Cali USA', type: 'Top Shelf',
-    specs: { origin: 'Los Angeles', grade: 'Elite', thc: 'Maximum', terpene: 'Exotique / Gas' },
+    id: 'cali-usa', name: 'Cali USA', type: 'Weed',
+    specs: { origin: 'Los Angeles', tasting: 'Exotique / Gas' },
     desc: 'Inspirée du soleil californien, profil exotique et sucré.',
     heroImg: null, images: [], video: null,
   },
   {
-    id: 'dry-sift', name: 'Dry-Sift 120u', type: 'Concentré',
-    specs: { origin: 'Dihram Farm', grade: 'Full Melt', thc: 'Extrême', terpene: 'Résine / Pin' },
+    id: 'dry-sift', name: 'Dry-Sift 120u', type: 'Hash',
+    specs: { origin: 'Dihram Farm', tasting: 'Résine / Pin' },
     desc: 'Concentré de pureté extrême, riche en terpènes résineux.',
     heroImg: null, images: [], video: null,
   },
@@ -50,6 +50,7 @@ let CATALOGUE = [];
 let REVIEWS = {};
 let current = null;
 let carouselN = 0;
+let currentCategory = null;
 
 // ── SVG Templates ─────────────────────────────────────────
 const STAR_SVG = `<svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>`;
@@ -67,9 +68,27 @@ function starsHTML(rating, maxSize) {
 // TELEGRAM SDK
 // ══════════════════════════════════════════════════════════
 const tg = window.Telegram?.WebApp ?? null;
+let TG_USER = { id: null, firstName: '', photoUrl: null };
+
 if (tg) {
   tg.ready(); tg.expand();
   try { tg.setHeaderColor('#030108'); tg.setBackgroundColor('#030108'); } catch(_) {}
+  
+  // Récupérer les infos de l'utilisateur Telegram
+  if (tg.initDataUnsafe?.user) {
+    const user = tg.initDataUnsafe.user;
+    TG_USER.id = user.id;
+    TG_USER.firstName = user.first_name || 'User';
+    // La photo doit être récupérée via l'API si disponible
+    TG_USER.photoUrl = null; // sera défini après
+  }
+  
+  // Récupérer la photo de profil si possible
+  if (tg.cloudStorage) {
+    tg.cloudStorage.getItem('user_photo', (err, data) => {
+      if (!err && data) TG_USER.photoUrl = data;
+    });
+  }
 }
 
 // ══════════════════════════════════════════════════════════
@@ -179,7 +198,8 @@ async function submitReviewToServer(productId, review) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ productId, review }),
     });
-    return res.ok;
+    if (!res.ok) return false;
+    return await res.json();
   } catch(e) {
     return false;
   }
@@ -216,6 +236,12 @@ function openProduct(id) {
 function goHome() {
   show('view-home');
   if (tg?.BackButton) tg.BackButton.hide();
+  // Reset hub state to show intro
+  const rootHome = document.getElementById('view-home');
+  if (rootHome) rootHome.classList.remove('hub-active');
+  // Reset footer hub to 'links' tab
+  const hubContent = document.getElementById('hub-content');
+  if (hubContent) hubContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ══════════════════════════════════════════════════════════
@@ -230,7 +256,8 @@ function getProductRating(productId) {
 
 function buildCards() {
   $cards.innerHTML = '';
-  CATALOGUE.forEach((p, i) => {
+  const filtered = currentCategory ? CATALOGUE.filter(p => p.type === currentCategory) : CATALOGUE;
+  filtered.forEach((p, i) => {
     const card = document.createElement('article');
     card.className = 'card glass-card';
     card.setAttribute('role', 'listitem');
@@ -277,10 +304,8 @@ function renderDetail(p) {
   document.getElementById('d-type').textContent = p.type;
   document.getElementById('d-desc').textContent = p.desc;
   
-  document.getElementById('s-origin').textContent = p.specs.origin;
-  document.getElementById('s-grade').textContent = p.specs.grade;
-  document.getElementById('s-thc').textContent = p.specs.thc;
-  document.getElementById('s-terpene').textContent = p.specs.terpene;
+  document.getElementById('s-origin').textContent = p.specs?.origin || '—';
+  document.getElementById('s-tasting').textContent = p.specs?.tasting || '—';
 
   // Hero Image
   const hero = document.getElementById('d-hero');
@@ -402,12 +427,23 @@ function renderReviews(productId) {
   list.innerHTML = reviews.map((r, i) => {
     const initial = (r.name || 'A')[0].toUpperCase();
     const dateStr = r.date ? new Date(r.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric' }) : '';
+    
+    // Avatar: photo de profil Telegram si disponible, sinon initiale avec gradient neon
+    const avatarHTML = r.userPhotoUrl 
+      ? `<img src="${r.userPhotoUrl}" alt="avatar" class="review-avatar-img"/>`
+      : `<div class="review-avatar-initial">${initial}</div>`;
+    
+    // Afficher seulement la première lettre au lieu du nom
+    const pseudoDisplay = `${initial}.`;
+    
     return `
       <div class="review-card" style="animation-delay:${i * 0.08}s">
         <div class="review-top">
           <div class="review-author">
-            <div class="review-avatar">${initial}</div>
-            <span class="review-name">${escapeHTML(r.name || 'Anonyme')}</span>
+            <div class="review-avatar">
+              ${avatarHTML}
+            </div>
+            <span class="review-name">${pseudoDisplay}</span>
           </div>
           <span class="review-date">${dateStr}</span>
         </div>
@@ -419,8 +455,8 @@ function renderReviews(productId) {
 }
 
 function resetReviewForm() {
-  document.getElementById('review-name-input').value = '';
-  document.getElementById('review-comment-input').value = '';
+  const commentInput = document.getElementById('review-comment-input');
+  if (commentInput) commentInput.value = '';
   document.querySelectorAll('#star-selector input').forEach(i => i.checked = false);
 }
 
@@ -436,7 +472,7 @@ function renderSheetMenu() {
     menuElement.innerHTML = CATALOGUE.map(p => `
       <button class="menu-item" type="button" data-product="${p.id}">
         <span class="menu-item-name">${p.name}</span>
-        <span class="menu-item-meta">${p.type} · ${p.specs.origin}</span>
+        <span class="menu-item-meta">${p.type} · ${p.specs?.origin || ''}</span>
       </button>
     `).join('');
 
@@ -454,7 +490,6 @@ function renderSheetMenu() {
 async function handleReviewSubmit() {
   if (!current) return;
 
-  const name = document.getElementById('review-name-input').value.trim() || 'Anonyme';
   const rating = getSelectedRating();
   const comment = document.getElementById('review-comment-input').value.trim();
 
@@ -468,25 +503,37 @@ async function handleReviewSubmit() {
   }
 
   const review = {
-    name,
     rating,
     comment,
     date: new Date().toISOString().split('T')[0],
+    initData: window.Telegram?.WebApp?.initData || '', // Send token to backend
   };
+
+  // Try to submit to server first
+  const serverRes = await submitReviewToServer(current.id, review);
+
+  if (serverRes && serverRes.success) {
+    review.name = serverRes.name || TG_USER.firstName || 'A';
+    review.userPhotoUrl = serverRes.userPhotoUrl || TG_USER.photoUrl;
+  } else {
+    review.name = TG_USER.firstName || 'A';
+    review.userPhotoUrl = TG_USER.photoUrl;
+    showToast('Avis enregistré (mode local)');
+  }
 
   // Add to local data
   if (!REVIEWS[current.id]) REVIEWS[current.id] = [];
   REVIEWS[current.id].push(review);
   saveReviewsLocal();
 
-  // Try to submit to server
-  await submitReviewToServer(current.id, review);
-
   // Re-render
   renderReviews(current.id);
   renderProductRating(current.id);
   resetReviewForm();
-  showToast('Avis publié avec succès ✨');
+  
+  if (serverRes && serverRes.success) {
+    showToast('Avis publié avec succès ✨');
+  }
 }
 
 function escapeHTML(str) {
@@ -627,6 +674,29 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const reviewSubmitBtn = document.getElementById('review-submit-btn');
   if (reviewSubmitBtn) reviewSubmitBtn.addEventListener('click', handleReviewSubmit);
+
+  // Category Filtering
+  const catBtns = document.querySelectorAll('.cat-btn');
+  const catView = document.getElementById('hub-categories');
+  const filteredView = document.getElementById('hub-filtered-view');
+  const backCatBtn = document.getElementById('btn-back-cat');
+
+  catBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentCategory = btn.dataset.cat;
+      catView.style.display = 'none';
+      filteredView.style.display = 'block';
+      buildCards();
+    });
+  });
+
+  if (backCatBtn) {
+    backCatBtn.addEventListener('click', () => {
+      currentCategory = null;
+      catView.style.display = 'grid';
+      filteredView.style.display = 'none';
+    });
+  }
 
   show('view-home');
 });

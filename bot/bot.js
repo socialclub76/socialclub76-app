@@ -10,6 +10,7 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 const http = require('http');
+const crypto = require('crypto');
 
 // ══════════════════════════════════════════════════════════
 // CONFIGURATION — À MODIFIER
@@ -96,20 +97,58 @@ app.use('/assets', express.static(path.join(ROOT_DIR, 'assets')));
 app.use(express.static(ROOT_DIR));
 
 // API: Submit review
-app.post('/api/reviews', (req, res) => {
+app.post('/api/reviews', async (req, res) => {
   const { productId, review } = req.body;
-  if (!productId || !review) return res.status(400).json({ error: 'Missing data' });
+  if (!productId || !review || !review.initData) return res.status(400).json({ error: 'Missing data' });
   
+  // Validation cryptographique du token Telegram (initData)
+  const urlParams = new URLSearchParams(review.initData);
+  const hash = urlParams.get('hash');
+  urlParams.delete('hash');
+  urlParams.sort();
+  let dataCheckString = '';
+  for (const [key, value] of urlParams.entries()) {
+    dataCheckString += `${key}=${value}\n`;
+  }
+  dataCheckString = dataCheckString.slice(0, -1);
+  const secret = crypto.createHmac('sha256', 'WebAppData').update(BOT_TOKEN).digest();
+  const _hash = crypto.createHmac('sha256', secret).update(dataCheckString).digest('hex');
+  
+  if (_hash !== hash) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+  }
+
+  const user = JSON.parse(urlParams.get('user'));
+  let photoUrl = null;
+
+  // Récupérer la photo de profil via le bot Telegram
+  try {
+    const photos = await bot.getUserProfilePhotos(user.id, { limit: 1 });
+    if (photos.total_count > 0) {
+      // Index 0 est la résolution la plus petite (avatar), parfait pour la web app
+      const fileId = photos.photos[0][0].file_id;
+      const file = await bot.getFile(fileId);
+      photoUrl = `https://api.telegram.org/file/bot${BOT_TOKEN}/${file.file_path}`;
+    }
+  } catch (e) {
+    console.error("Erreur récupération photo:", e.message);
+  }
+
   const reviews = getReviews();
   if (!reviews[productId]) reviews[productId] = [];
+  
+  // Sauvegarde anonymisée
   reviews[productId].push({
-    name: (review.name || 'Anonyme').substring(0, 30),
+    name: user.first_name || 'Anonyme',
+    userId: user.id,
+    userPhotoUrl: photoUrl,
     rating: Math.max(1, Math.min(5, parseInt(review.rating) || 5)),
     comment: (review.comment || '').substring(0, 500),
     date: review.date || new Date().toISOString().split('T')[0],
   });
   saveReviews(reviews);
-  res.json({ success: true });
+  
+  res.json({ success: true, name: user.first_name, userPhotoUrl: photoUrl });
 });
 
 app.listen(PORT, () => {
@@ -123,6 +162,17 @@ app.listen(PORT, () => {
 // TELEGRAM BOT
 // ══════════════════════════════════════════════════════════
 const bot = new TelegramBot(BOT_TOKEN, { polling: true });
+
+const adminStates = {};
+const STATES = {
+  AJOUT_CAT: 'AJOUT_CAT',
+  AJOUT_NAME: 'AJOUT_NAME',
+  AJOUT_HERO: 'AJOUT_HERO',
+  AJOUT_DESC: 'AJOUT_DESC',
+  AJOUT_ORIGIN: 'AJOUT_ORIGIN',
+  AJOUT_TASTING: 'AJOUT_TASTING',
+  AJOUT_GALLERY: 'AJOUT_GALLERY',
+};
 
 function isAdmin(msg) {
   if (ADMIN_IDS.length === 0) return true; // Si pas d'IDs configurés, tout le monde est admin
@@ -143,12 +193,13 @@ Bienvenue ! Voici tes commandes :
 
 📦 *PRODUITS*
 /produits — Liste tous les produits
-/ajout \\<nom\\> — Ajouter un produit
+/ajout — Lancer l'assistant d'ajout de produit
+/annuler — Annuler l'ajout en cours
 /supprimer \\<id\\> — Supprimer un produit
 /modifier \\<id\\> \\<champ\\> \\<valeur\\> — Modifier
 
 📝 *CHAMPS MODIFIABLES*
-\`nom\`, \`desc\`, \`type\`, \`origin\`, \`grade\`, \`thc\`, \`terpene\`
+\`nom\`, \`desc\`, \`type\`, \`origin\`, \`tasting\`
 
 🖼️ *IMAGES*
 /image \\<id\\> — Ajouter une image \\(en caption d'une photo\\)
@@ -201,36 +252,162 @@ bot.onText(/\/produits/, (msg) => {
   bot.sendMessage(msg.chat.id, `📦 *Catalogue (${catalogue.length} produits)*\n\n${lines.join('\n\n')}`, { parse_mode: 'Markdown' });
 });
 
-// ── /ajout <nom> ────────────────────────────────────────
-bot.onText(/\/ajout (.+)/, (msg, match) => {
+// ── /ajout (Assistant) ──────────────────────────────────
+bot.onText(/^\/ajout(?:\s|$)/, (msg) => {
   if (!isAdmin(msg)) return deny(msg);
-  const name = match[1].trim();
-  const id = slugify(name);
-  const catalogue = getCatalogue();
+  adminStates[msg.chat.id] = { state: STATES.AJOUT_CAT, data: {} };
   
-  if (catalogue.find(p => p.id === id)) {
-    return bot.sendMessage(msg.chat.id, `⚠️ Un produit avec l'ID \`${id}\` existe déjà.`, { parse_mode: 'Markdown' });
-  }
-
-  const newProduct = {
-    id,
-    name,
-    type: 'Nouveau',
-    specs: { origin: 'À définir', grade: 'À définir', thc: 'À définir', terpene: 'À définir' },
-    desc: 'Description à ajouter.',
-    heroImg: null,
-    images: [],
-    video: null,
+  const opts = {
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: 'Weed 🌿', callback_data: 'CAT_Weed' }, { text: 'Hash 🍫', callback_data: 'CAT_Hash' }]
+      ]
+    }
   };
+  bot.sendMessage(msg.chat.id, "Assistant d'ajout de produit lancé !\n\nÉtape 1/7 : Quelle est la catégorie du produit ?\n\n(Tapez /annuler à tout moment pour arrêter)", opts);
+});
 
-  catalogue.push(newProduct);
+bot.on('callback_query', (query) => {
+  const msg = query.message;
+  const chatId = msg.chat.id;
+  if (!isAdmin(msg)) return;
+  
+  if (query.data.startsWith('CAT_')) {
+    const cat = query.data.split('_')[1];
+    const session = adminStates[chatId];
+    if (session && session.state === STATES.AJOUT_CAT) {
+      session.data.type = cat;
+      session.state = STATES.AJOUT_NAME;
+      bot.editMessageText(`Catégorie choisie : ${cat}\n\nÉtape 2/7 : Quel est le nom du produit ?`, {
+        chat_id: chatId,
+        message_id: msg.message_id
+      });
+    }
+  }
+});
+
+// ── Machine d'état pour les réponses textuelles / médias
+bot.on('message', async (msg) => {
+  if (!isAdmin(msg)) return;
+  const chatId = msg.chat.id;
+  const text = msg.text || '';
+  
+  if (text.startsWith('/')) return; // ignoré (géré par les commandes)
+
+  const session = adminStates[chatId];
+  if (!session) return;
+
+  if (session.state === STATES.AJOUT_NAME) {
+    session.data.name = text.trim();
+    session.data.id = slugify(session.data.name);
+    session.state = STATES.AJOUT_HERO;
+    bot.sendMessage(chatId, `Nom enregistré: *${session.data.name}*\n\nÉtape 3/7 : Envoie l'image principale (Hero) du produit.`, { parse_mode: 'Markdown' });
+  }
+  else if (session.state === STATES.AJOUT_HERO) {
+    if (!msg.photo) return bot.sendMessage(chatId, "⚠️ Merci d'envoyer une photo pour l'image principale.");
+    try {
+      const photo = msg.photo[msg.photo.length - 1];
+      const file = await bot.getFile(photo.file_id);
+      const fileUrl = `https://api.telegram.org/file/bot${BOT_TOKEN}/${file.file_path}`;
+      const ext = path.extname(file.file_path) || '.jpg';
+      const filename = `hero_${session.data.id}_${Date.now()}${ext}`;
+      const destPath = path.join(IMAGES_DIR, filename);
+      await downloadFile(fileUrl, destPath);
+      session.data.heroImg = `assets/images/${filename}`;
+      
+      session.state = STATES.AJOUT_DESC;
+      bot.sendMessage(chatId, "Image principale enregistrée !\n\nÉtape 4/7 : Quelle est la description du produit ?");
+    } catch(e) {
+      bot.sendMessage(chatId, `Erreur lors du téléchargement : ${e.message}`);
+    }
+  }
+  else if (session.state === STATES.AJOUT_DESC) {
+    session.data.desc = text.trim();
+    session.state = STATES.AJOUT_ORIGIN;
+    bot.sendMessage(chatId, "Description enregistrée.\n\nÉtape 5/7 : Quelle est l'origine ou l'arôme principal ? (ex: Indoor / Terreux)");
+  }
+  else if (session.state === STATES.AJOUT_ORIGIN) {
+    if (!session.data.specs) session.data.specs = {};
+    session.data.specs.origin = text.trim();
+    session.state = STATES.AJOUT_TASTING;
+    bot.sendMessage(chatId, "Origine/Arôme enregistré.\n\nÉtape 6/7 : Quelles sont les notes de dégustation ?");
+  }
+  else if (session.state === STATES.AJOUT_TASTING) {
+    session.data.specs.tasting = text.trim();
+    session.state = STATES.AJOUT_GALLERY;
+    session.data.images = [];
+    bot.sendMessage(chatId, "Notes enregistrées.\n\nÉtape 7/7 : Veux-tu ajouter d'autres images ou une vidéo pour la galerie ?\nEnvoie-les maintenant une par une.\n\nQuand tu as terminé, tape /fin_ajout pour valider et publier le produit.");
+  }
+  else if (session.state === STATES.AJOUT_GALLERY) {
+    if (msg.photo || msg.video) {
+      try {
+        let fileId, ext, isVideo = false;
+        if (msg.photo) {
+          fileId = msg.photo[msg.photo.length - 1].file_id;
+          ext = '.jpg';
+        } else {
+          fileId = msg.video.file_id;
+          ext = '.mp4';
+          isVideo = true;
+        }
+        const file = await bot.getFile(fileId);
+        const fileUrl = `https://api.telegram.org/file/bot${BOT_TOKEN}/${file.file_path}`;
+        const filename = `gal_${session.data.id}_${Date.now()}${ext}`;
+        const destPath = path.join(isVideo ? VIDEOS_DIR : IMAGES_DIR, filename);
+        await downloadFile(fileUrl, destPath);
+        
+        if (isVideo) {
+          session.data.video = `assets/videos/${filename}`;
+          bot.sendMessage(chatId, "🎬 Vidéo ajoutée à la galerie ! (Tape /fin_ajout pour terminer)");
+        } else {
+          session.data.images.push(`assets/images/${filename}`);
+          bot.sendMessage(chatId, `📷 Image ajoutée (${session.data.images.length} images). (Tape /fin_ajout pour terminer)`);
+        }
+      } catch(e) {
+        bot.sendMessage(chatId, `Erreur lors de l'ajout : ${e.message}`);
+      }
+    } else {
+      bot.sendMessage(chatId, "⚠️ Envoie une photo ou une vidéo, ou tape /fin_ajout pour terminer.");
+    }
+  }
+});
+
+// ── /fin_ajout ──────────────────────────────────────────
+bot.onText(/\/fin_ajout/, (msg) => {
+  if (!isAdmin(msg)) return deny(msg);
+  const chatId = msg.chat.id;
+  const session = adminStates[chatId];
+  
+  if (!session || session.state !== STATES.AJOUT_GALLERY) {
+    return bot.sendMessage(chatId, "⚠️ Aucun ajout en cours ou étape invalide. Assure-toi d'être à la dernière étape (Galerie).");
+  }
+  
+  const catalogue = getCatalogue();
+  if (catalogue.find(p => p.id === session.data.id)) {
+    session.data.id += '-' + Math.floor(Math.random()*1000);
+  }
+  
+  catalogue.push(session.data);
   saveCatalogue(catalogue);
-
-  // Initialize reviews for this product
+  
   const reviews = getReviews();
-  if (!reviews[id]) { reviews[id] = []; saveReviews(reviews); }
+  if (!reviews[session.data.id]) { reviews[session.data.id] = []; saveReviews(reviews); }
+  
+  bot.sendMessage(chatId, `✅ Produit *${session.data.name}* ajouté avec succès au catalogue !\nID: \`${session.data.id}\``, { parse_mode: 'Markdown' });
+  
+  delete adminStates[chatId];
+});
 
-  bot.sendMessage(msg.chat.id, `✅ Produit *${name}* ajouté !\nID: \`${id}\`\n\nUtilise /modifier ${id} <champ> <valeur> pour le configurer.`, { parse_mode: 'Markdown' });
+// ── /annuler ────────────────────────────────────────────
+bot.onText(/\/annuler/, (msg) => {
+  if (!isAdmin(msg)) return deny(msg);
+  const chatId = msg.chat.id;
+  if (adminStates[chatId]) {
+    delete adminStates[chatId];
+    bot.sendMessage(chatId, "❌ Création de produit annulée.");
+  } else {
+    bot.sendMessage(chatId, "Aucune action en cours.");
+  }
 });
 
 // ── /supprimer <id> ─────────────────────────────────────
@@ -264,7 +441,7 @@ bot.onText(/\/modifier (\S+)\s+(\S+)\s+(.+)/, (msg, match) => {
     return bot.sendMessage(msg.chat.id, `❌ Produit \`${id}\` non trouvé.`, { parse_mode: 'Markdown' });
   }
 
-  const specFields = ['origin', 'grade', 'thc', 'terpene'];
+  const specFields = ['origin', 'tasting'];
   
   if (field === 'nom' || field === 'name') {
     product.name = value;
@@ -273,9 +450,10 @@ bot.onText(/\/modifier (\S+)\s+(\S+)\s+(.+)/, (msg, match) => {
   } else if (field === 'type') {
     product.type = value;
   } else if (specFields.includes(field)) {
+    if (!product.specs) product.specs = {};
     product.specs[field] = value;
   } else {
-    return bot.sendMessage(msg.chat.id, `⚠️ Champ inconnu: \`${field}\`\nChamps valides: nom, desc, type, origin, grade, thc, terpene`, { parse_mode: 'Markdown' });
+    return bot.sendMessage(msg.chat.id, `⚠️ Champ inconnu: \`${field}\`\nChamps valides: nom, desc, type, origin, tasting`, { parse_mode: 'Markdown' });
   }
 
   saveCatalogue(catalogue);
