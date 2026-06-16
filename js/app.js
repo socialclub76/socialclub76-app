@@ -625,7 +625,6 @@ function autoBindSheetTabs() {
 }
 
 function autoBindFooterHub() {
-  // Footer buttons now switch inline hub panels instead of opening the sheet
   const btnMenu = document.getElementById('hub-menu');
   const btnInfo = document.getElementById('hub-info');
   const btnLinks = document.getElementById('hub-links');
@@ -636,15 +635,22 @@ function autoBindFooterHub() {
   };
 
   const rootHome = document.getElementById('view-home');
-  const activateHubTab = (tabKey, hideIntro = false) => {
+  const activateHubTab = (tabKey) => {
     document.querySelectorAll('.hub-btn').forEach(h => h.classList.toggle('active', h.dataset.tab === tabKey));
+    
     Object.keys(panels).forEach(k => {
       const el = panels[k];
       if (!el) return;
-      if (k === tabKey) { el.style.display = ''; el.classList.add('active'); }
-      else { el.style.display = 'none'; el.classList.remove('active'); }
+      if (k === tabKey) {
+        el.style.display = '';
+        el.classList.add('active');
+      } else {
+        el.style.display = 'none';
+        el.classList.remove('active');
+      }
     });
-    if (hideIntro && rootHome) rootHome.classList.add('hub-active');
+
+    // Scroll vers le haut quand on change d'onglet
     const hubContent = document.getElementById('hub-content');
     if (hubContent) hubContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
@@ -653,11 +659,11 @@ function autoBindFooterHub() {
     if (!b) return;
     b.addEventListener('click', (e) => {
       e.preventDefault();
-      activateHubTab(b.dataset.tab, true);
+      activateHubTab(b.dataset.tab);
     });
   });
 
-  activateHubTab('links', false);
+  activateHubTab('links');
 }
 
 // ══════════════════════════════════════════════════════════
