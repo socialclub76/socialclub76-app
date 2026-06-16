@@ -486,6 +486,34 @@ function renderSheetMenu() {
   });
 }
 
+// ... après les autres bindings
+
+// Category Filtering + Initial render
+const catBtns = document.querySelectorAll('.cat-btn');
+const catView = document.getElementById('hub-categories');
+const filteredView = document.getElementById('hub-filtered-view');
+const backCatBtn = document.getElementById('btn-back-cat');
+
+catBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentCategory = btn.dataset.cat;
+    catView.style.display = 'none';
+    filteredView.style.display = 'block';
+    buildCards();  // ← Important
+  });
+});
+
+if (backCatBtn) {
+  backCatBtn.addEventListener('click', () => {
+    currentCategory = null;
+    catView.style.display = 'grid';
+    filteredView.style.display = 'none';
+    buildCards();  // ← Reset complet
+  });
+}
+
+// Render initial des cartes (tous les produits)
+buildCards();
 
 async function handleReviewSubmit() {
   if (!current) return;
@@ -700,3 +728,4 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   show('view-home');
 });
+

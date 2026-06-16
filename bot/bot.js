@@ -267,21 +267,31 @@ bot.onText(/^\/ajout(?:\s|$)/, (msg) => {
   bot.sendMessage(msg.chat.id, "Assistant d'ajout de produit lancé !\n\nÉtape 1/7 : Quelle est la catégorie du produit ?\n\n(Tapez /annuler à tout moment pour arrêter)", opts);
 });
 
+// Remplace le handler callback_query par ça (lignes ~270-287)
 bot.on('callback_query', (query) => {
-  const msg = query.message;
-  const chatId = msg.chat.id;
-  if (!isAdmin(msg)) return;
+  const chatId = query.message.chat.id;
+  const fromId = query.from.id;  // ← Correction ici
+
+  if (!ADMIN_IDS.length === 0 && !ADMIN_IDS.includes(fromId)) {
+    return bot.answerCallbackQuery(query.id, { text: "⛔ Accès refusé." });
+  }
   
   if (query.data.startsWith('CAT_')) {
     const cat = query.data.split('_')[1];
     const session = adminStates[chatId];
+    
     if (session && session.state === STATES.AJOUT_CAT) {
       session.data.type = cat;
       session.state = STATES.AJOUT_NAME;
-      bot.editMessageText(`Catégorie choisie : ${cat}\n\nÉtape 2/7 : Quel est le nom du produit ?`, {
+      
+      bot.editMessageText(`✅ Catégorie choisie : **${cat}**\n\nÉtape 2/7 : Quel est le nom du produit ?`, {
         chat_id: chatId,
-        message_id: msg.message_id
-      });
+        message_id: query.message.message_id,
+        parse_mode: 'Markdown'
+      }).catch(console.error);
+      
+      // Répondre au callback pour enlever le "chargement"
+      bot.answerCallbackQuery(query.id);
     }
   }
 });

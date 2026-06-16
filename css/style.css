@@ -1230,3 +1230,14 @@ textarea.form-input { resize:vertical; min-height:100px; line-height:1.7; }
 ::-webkit-scrollbar-track { background:transparent; }
 ::-webkit-scrollbar-thumb { background:rgba(176,38,255,0.25); border-radius:3px; }
 ::-webkit-scrollbar-thumb:hover { background:rgba(176,38,255,0.5); }
+
+.cards-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 20px;
+}
+
+#hub-filtered-view {
+  padding-bottom: 80px;
+}
