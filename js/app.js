@@ -255,8 +255,23 @@ function getProductRating(productId) {
 }
 
 function buildCards() {
+  if (!$cards) {
+    console.warn("buildCards: $cards non trouvé");
+    return;
+  }
+  
   $cards.innerHTML = '';
-  const filtered = currentCategory ? CATALOGUE.filter(p => p.type === currentCategory) : CATALOGUE;
+  
+  let filtered = CATALOGUE;
+  if (currentCategory) {
+    filtered = CATALOGUE.filter(p => (p.type || '').toLowerCase() === currentCategory.toLowerCase());
+  }
+
+  if (filtered.length === 0) {
+    $cards.innerHTML = `<p style="padding:40px 20px; text-align:center; color:#888;">Aucun produit dans cette catégorie pour le moment.</p>`;
+    return;
+  }
+
   filtered.forEach((p, i) => {
     const card = document.createElement('article');
     card.className = 'card glass-card';
@@ -264,11 +279,14 @@ function buildCards() {
     card.setAttribute('tabindex', '0');
     card.id = `card-${p.id}`;
 
-    const thumb = p.heroImg
-      ? `<img src="${p.heroImg}" alt="${p.name}" loading="lazy"/>`
+    // Protection contre les données incomplètes
+    const heroSrc = p.heroImg || (p.images && p.images[0]) || '';
+    const thumb = heroSrc 
+      ? `<img src="${heroSrc}" alt="${p.name || 'Produit'}" loading="lazy"/>`
       : `<div class="card-thumb-ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>`;
 
-    const { avg, count } = getProductRating(p.id);
+    const { avg, count } = getProductRating(p.id || '');
+
     const ratingHTML = count > 0
       ? `<div class="card-rating">${starsHTML(Math.round(avg))}<span class="card-rating-count">(${count})</span></div>`
       : '';
@@ -277,17 +295,16 @@ function buildCards() {
       <div class="card-inner">
         <div class="card-thumb">${thumb}</div>
         <div class="card-body">
-          <div class="card-name">${p.name}</div>
+          <div class="card-name">${p.name || 'Sans nom'}</div>
           <div class="card-tags">
-            <span class="c-tag primary"><span class="c-tag-dot"></span>${p.type}</span>
+            <span class="c-tag primary"><span class="c-tag-dot"></span>${p.type || 'Inconnu'}</span>
           </div>
           ${ratingHTML}
         </div>
       </div>
     `;
     
-    // Stagger animation
-    card.style.animationDelay = `${i * 0.1}s`;
+    card.style.animationDelay = `${i * 0.08}s`;
     card.classList.add('animate-in');
     
     card.addEventListener('click', () => openProduct(p.id));
@@ -652,7 +669,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Load data
   await Promise.all([loadCatalogue(), loadReviews()]);
-
+  $cards = document.getElementById('cards') || document.createElement('div'); // sécurité
   // Query DOM elements now that DOM is ready
   $cards = document.getElementById('cards');
   $backdrop = document.getElementById('sheet-backdrop');
