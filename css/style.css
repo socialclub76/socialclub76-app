@@ -888,15 +888,21 @@ button,a { font-family:inherit; cursor:pointer; border:none; background:none; te
   align-items:center; justify-content:center; gap:12px; cursor:pointer;
   transition: all 0.4s var(--spring);
 }
-.cat-btn:hover {
+.cat-btn:active {
   background: rgba(255,255,255,0.1); border-color: var(--neon-cyan);
-  transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.5), 0 0 15px rgba(0,240,255,0.2);
+  transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.5), 0 0 15px rgba(0,240,255,0.2);
 }
 .cat-icon { width:48px; height:48px; display:flex; align-items:center; justify-content:center; }
 .cat-icon svg { width:100%; height:100%; transition: all 0.4s; }
 .cat-icon.weed svg { color: #84d2ff; filter: drop-shadow(0 0 8px rgba(132,210,255,0.6)); }
 .cat-icon.chocolate svg { color: #ffd95b; filter: drop-shadow(0 0 8px rgba(255,217,91,0.6)); }
-.cat-btn:hover .cat-icon svg { transform: scale(1.1); }
+@media (hover: hover) {
+  .cat-btn:hover {
+    background: rgba(255,255,255,0.1); border-color: var(--neon-cyan);
+    transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.5), 0 0 15px rgba(0,240,255,0.2);
+  }
+  .cat-btn:hover .cat-icon svg { transform: scale(1.1); }
+}
 .cat-label { font-family:'Cinzel',serif; font-size:16px; font-weight:800; color:#fff; letter-spacing:2px; text-transform:uppercase; }
 .btn-back-cat {
   background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);

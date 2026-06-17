@@ -609,6 +609,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   catBtns.forEach(btn => {
     btn.addEventListener('click', () => {
+      btn.blur(); // Retire le focus pour enlever le neon au retour
       currentCategory = btn.dataset.cat;
       if (catView)      catView.style.display      = 'none';
       if (filteredView) filteredView.style.display  = 'block';
