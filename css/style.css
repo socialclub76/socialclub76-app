@@ -1266,3 +1266,97 @@ textarea.form-input { resize:vertical; min-height:100px; line-height:1.7; }
 .card, .spec-item-big, .review-card {
   transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   HUB LINKS WITH ICONS
+   ═══════════════════════════════════════════════════════════ */
+.hub-link {
+  display: flex !important;
+  align-items: center;
+  gap: 14px;
+}
+.hub-link-icon {
+  width: 36px; height: 36px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 10px;
+  background: rgba(41, 182, 246, 0.12);
+  border: 1px solid rgba(41, 182, 246, 0.22);
+}
+.hub-link-icon svg { width: 20px; height: 20px; display: block; }
+.hub-link-sg .hub-link-icon {
+  background: rgba(58, 118, 240, 0.12);
+  border-color: rgba(58, 118, 240, 0.22);
+}
+.hub-link-text { flex: 1; }
+
+/* Canal Luffa — couleur violette */
+.order-btn-icon.tg-luffa {
+  background: rgba(161, 86, 255, 0.12) !important;
+  border: 1px solid rgba(161, 86, 255, 0.25) !important;
+}
+.order-btn:hover .order-btn-icon.tg-luffa {
+  background: rgba(161, 86, 255, 0.85) !important;
+  box-shadow: 0 0 24px rgba(161, 86, 255, 0.45) !important;
+}
+
+/* Signal icon — bleu royal */
+.order-btn-icon.sg {
+  background: rgba(58, 118, 240, 0.1);
+  border: 1px solid rgba(58, 118, 240, 0.22);
+}
+.order-btn:hover .order-btn-icon.sg {
+  background: rgba(58, 118, 240, 0.9);
+  box-shadow: 0 0 24px rgba(58, 118, 240, 0.4);
+}
+.order-btn-icon.sg svg { width: 26px; height: 26px; }
+
+/* ═══════════════════════════════════════════════════════════
+   REVIEWS — Styles complets
+   ═══════════════════════════════════════════════════════════ */
+.review-item {
+  padding: 16px 18px;
+  border-radius: 18px;
+  margin-bottom: 12px;
+}
+.review-header {
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 12px;
+  margin-bottom: 10px;
+}
+.review-user {
+  display: flex; align-items: center; gap: 10px;
+}
+.review-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid rgba(255, 217, 91, 0.3);
+}
+.review-avatar-ph {
+  width: 38px; height: 38px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, rgba(255,45,149,0.3), rgba(161,86,255,0.3));
+  border: 1.5px solid rgba(255,45,149,0.3);
+  font-size: 15px; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+.review-user-info { display: flex; flex-direction: column; gap: 2px; }
+.review-name { font-size: 13px; font-weight: 700; color: var(--c-main); }
+.review-date { font-size: 10px; color: var(--c-muted); letter-spacing: 0.3px; }
+.review-stars { display: flex; gap: 2px; }
+.review-stars .star { width: 13px; height: 13px; fill: var(--rock-gold); filter: drop-shadow(0 0 3px rgba(255,217,91,0.5)); }
+.review-stars .star.empty { fill: var(--c-muted); filter: none; opacity: 0.25; }
+.review-comment {
+  font-size: 13px; color: var(--c-dim);
+  line-height: 1.7; padding-top: 6px;
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CARDS GRID — fix pour la grille dans hub-panel
+   ═══════════════════════════════════════════════════════════ */
+#cards {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 0 4px;
+}

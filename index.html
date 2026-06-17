@@ -48,13 +48,33 @@
 
     <!-- Hub inline panels (will be controlled by footer buttons) -->
     <div id="hub-content" class="hub-content">
-      <div class="hub-panel active" id="hub-panel-links">
-        <a class="hub-link" href="https://t.me/canalpotatos" target="_blank">Canal Potatos — Accès direct</a>
-        <a class="hub-link" href="https://t.me/canalluffa" target="_blank">Canal Luffa — Nouveautés & commandes</a>
-        <a class="hub-link" href="#" id="hub-telegram-link">Telegram — Lien commande</a>
-        <a class="hub-link" href="#" id="hub-signal-link">Signal — Lien commande</a>
+      <div class="hub-panel" id="hub-panel-links">
+        <a class="hub-link hub-link-tg" href="https://t.me/canalpotatos" target="_blank">
+          <span class="hub-link-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.32 14.617l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.828.942z" fill="#29B6F6"/></svg>
+          </span>
+          <span class="hub-link-text">Canal Potatos — Accès direct</span>
+        </a>
+        <a class="hub-link hub-link-tg" href="https://t.me/canalluffa" target="_blank">
+          <span class="hub-link-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.32 14.617l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.828.942z" fill="#29B6F6"/></svg>
+          </span>
+          <span class="hub-link-text">Canal Luffa — Nouveautés &amp; commandes</span>
+        </a>
+        <a class="hub-link hub-link-tg" href="#" id="hub-telegram-link">
+          <span class="hub-link-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.32 14.617l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.828.942z" fill="#29B6F6"/></svg>
+          </span>
+          <span class="hub-link-text">Telegram — Lien commande</span>
+        </a>
+        <a class="hub-link hub-link-sg" href="#" id="hub-signal-link">
+          <span class="hub-link-icon">
+            <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg"><path d="M 25 2 C 12.309295 2 2 12.309295 2 25 C 2 37.690705 12.309295 48 25 48 C 37.690705 48 48 37.690705 48 25 C 48 12.309295 37.690705 2 25 2 z M 16.199219 8.6933594 L 18.800781 13.007812 C 15.176907 15.054342 12.504587 18.420898 11.53125 22.435547 L 6.5058594 21.203125 C 7.8157826 15.800605 11.410976 11.289854 16.199219 8.6933594 z M 33.800781 8.6933594 C 38.589024 11.289854 42.184217 15.800605 43.494141 21.203125 L 38.46875 22.435547 C 37.495413 18.420898 34.823093 15.054342 31.199219 13.007812 L 33.800781 8.6933594 z M 25 14 C 30.514 14 35 18.486 35 24 C 35 29.514 30.514 34 25 34 C 19.486 34 15 29.514 15 24 C 15 18.486 19.486 14 25 14 z M 6.3300781 28.917969 L 11.382812 27.789062 C 12.431348 31.747764 15.056398 35.059143 18.617188 36.996094 L 16.099609 41.357422 C 11.390528 38.762791 7.8467244 34.280594 6.3300781 28.917969 z M 43.669922 28.917969 C 42.153276 34.280594 38.609472 38.762791 33.900391 41.357422 L 31.382812 36.996094 C 34.943602 35.059143 37.568652 31.747764 38.617188 27.789062 L 43.669922 28.917969 z" fill="#3A76F0"/></svg>
+          </span>
+          <span class="hub-link-text">Signal — Lien commande sécurisé</span>
+        </a>
       </div>
-      <div class="hub-panel" id="hub-panel-infos" style="display:none">
+      <div class="hub-panel" id="hub-panel-infos">
         <div class="info-card glass-card">
           <h3>Infos du Plug</h3>
           <p>Équipe discrète · Commandes sur invitation · Livraison premium dans Rouen et environs.</p>
@@ -64,7 +84,7 @@
           <p>Disponible 7j/7 de 10h à 22h. Réponse ultra rapide via Telegram / Signal.</p>
         </div>
       </div>
-      <div class="hub-panel" id="hub-panel-menu" style="display:none">
+      <div class="hub-panel" id="hub-panel-menu">
         <div class="hub-categories" id="hub-categories">
           <button class="cat-btn" data-cat="Weed">
             <div class="cat-icon weed">
@@ -272,10 +292,12 @@
   </div>
 
   <div class="sheet-panel active" id="sheet-panel-links">
+
+    <!-- Canal Potatos -->
     <a class="order-btn glass-card tilt-element" href="https://t.me/canalpotatos" target="_blank">
       <div class="glare"></div>
       <div class="order-btn-icon tg">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2L7.5 12.75 10 22 12.75 14.5 21 2"></path></svg>
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.32 14.617l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.828.942z" fill="#29B6F6"/></svg>
       </div>
       <div class="order-btn-text">
         <div class="order-btn-lbl">Canal Potatos</div>
@@ -284,34 +306,37 @@
       <div class="order-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
     </a>
 
+    <!-- Canal Luffa -->
     <a class="order-btn glass-card tilt-element" href="https://t.me/canalluffa" target="_blank">
       <div class="glare"></div>
-      <div class="order-btn-icon tg">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2L7.5 12.75 10 22 12.75 14.5 21 2"></path></svg>
+      <div class="order-btn-icon tg tg-luffa">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.32 14.617l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.828.942z" fill="#a156ff"/></svg>
       </div>
       <div class="order-btn-text">
         <div class="order-btn-lbl">Canal Luffa</div>
-        <div class="order-btn-desc">Nouveautés & commandes</div>
+        <div class="order-btn-desc">Nouveautés &amp; commandes</div>
       </div>
       <div class="order-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
     </a>
 
+    <!-- Signal -->
     <a class="order-btn glass-card tilt-element" id="btn-signal" href="#" target="_blank">
       <div class="glare"></div>
       <div class="order-btn-icon sg">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+        <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg"><path d="M 25 2 C 12.309295 2 2 12.309295 2 25 C 2 37.690705 12.309295 48 25 48 C 37.690705 48 48 37.690705 48 25 C 48 12.309295 37.690705 2 25 2 z M 16.199219 8.6933594 L 18.800781 13.007812 C 15.176907 15.054342 12.504587 18.420898 11.53125 22.435547 L 6.5058594 21.203125 C 7.8157826 15.800605 11.410976 11.289854 16.199219 8.6933594 z M 33.800781 8.6933594 C 38.589024 11.289854 42.184217 15.800605 43.494141 21.203125 L 38.46875 22.435547 C 37.495413 18.420898 34.823093 15.054342 31.199219 13.007812 L 33.800781 8.6933594 z M 25 14 C 30.514 14 35 18.486 35 24 C 35 29.514 30.514 34 25 34 C 19.486 34 15 29.514 15 24 C 15 18.486 19.486 14 25 14 z M 6.3300781 28.917969 L 11.382812 27.789062 C 12.431348 31.747764 15.056398 35.059143 18.617188 36.996094 L 16.099609 41.357422 C 11.390528 38.762791 7.8467244 34.280594 6.3300781 28.917969 z M 43.669922 28.917969 C 42.153276 34.280594 38.609472 38.762791 33.900391 41.357422 L 31.382812 36.996094 C 34.943602 35.059143 37.568652 31.747764 38.617188 27.789062 L 43.669922 28.917969 z" fill="#3A76F0"/></svg>
       </div>
       <div class="order-btn-text">
         <div class="order-btn-lbl">Signal</div>
-        <div class="order-btn-desc">Lien commande sécurisé</div>
+        <div class="order-btn-desc">Lien commande sécurisé 🔒</div>
       </div>
       <div class="order-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
     </a>
 
+    <!-- Telegram principal -->
     <a class="order-btn glass-card tilt-element" id="btn-telegram" href="#" target="_blank">
       <div class="glare"></div>
       <div class="order-btn-icon tg">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.32 14.617l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.828.942z" fill="#29B6F6"/></svg>
       </div>
       <div class="order-btn-text">
         <div class="order-btn-lbl">Telegram</div>

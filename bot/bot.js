@@ -237,7 +237,10 @@ function deny(msg) {
 
 // ── /start & /help ──────────────────────────────────────
 bot.onText(/\/start/, (msg) => {
-  if (!isAdmin(msg)) return deny(msg);
+  trackUser(msg); // Enregistrer l'utilisateur
+  if (!isAdmin(msg)) {
+    return bot.sendMessage(msg.chat.id, '👋 Bienvenue sur Social Club 76 !\nConsulte notre catalogue via le menu.');
+  }
   const text = `
 🌿 *Social Club 76 — Admin Bot*
 
@@ -269,28 +272,41 @@ Bienvenue ! Voici tes commandes :
 
 ℹ️ *DIVERS*
 /monid — Afficher ton ID Telegram
+/users — Voir tous les utilisateurs enregistrés
 /help — Réafficher ce message
 
-📢 *NOUVEAUTÉ*
-/message <ID> <texte> — Envoyer à une personne
-/message all <texte> — Envoyer à tout le monde
-
+📢 *MESSAGES*
+/message \\<ID\\> \\<texte\\> — Envoyer à une personne
+/message all \\<texte\\> — Envoyer à tout le monde
 
 _Ton ID: ${msg.from.id}_
   `;
   bot.sendMessage(msg.chat.id, text, { parse_mode: 'MarkdownV2' }).catch(() => {
-    // Fallback without markdown if parsing fails
     bot.sendMessage(msg.chat.id, text.replace(/[\\*_`]/g, ''));
   });
 });
 
 bot.onText(/\/help/, (msg) => {
-  bot.emit('text', '/start', msg);
+  trackUser(msg);
+  // Redirige vers /start handler
+  bot.emit('text', { ...msg, text: '/start' });
 });
 
 // ── /monid ──────────────────────────────────────────────
 bot.onText(/\/monid/, (msg) => {
+  trackUser(msg);
   bot.sendMessage(msg.chat.id, `🆔 Ton ID Telegram : \`${msg.from.id}\``, { parse_mode: 'Markdown' });
+});
+
+// ── /users ───────────────────────────────────────────────
+bot.onText(/\/users/, (msg) => {
+  if (!isAdmin(msg)) return deny(msg);
+  const users = getUsers();
+  if (!users.length) return bot.sendMessage(msg.chat.id, '👥 Aucun utilisateur enregistré.');
+  const lines = users.map((u, i) =>
+    `${i+1}. *${u.first_name || '?'}*${u.username ? ' (@' + u.username + ')' : ''}\n   ID: \`${u.id}\``
+  );
+  bot.sendMessage(msg.chat.id, `👥 *${users.length} utilisateur(s)*\n\n${lines.join('\n\n')}`, { parse_mode: 'Markdown' });
 });
 
 // ── /lien <nom> <url> ─────────────────────────────────────
@@ -318,30 +334,37 @@ bot.onText(/\/lien (\S+)\s+(.+)/, (msg, match) => {
 });
 
 // ── /message <ID> <texte> ou /message all <texte> ─────────────────
-bot.onText(/\/message(?:\s+(\S+))?\s+(.+)/, (msg, match) => {
+// Regex amélioré : capture tout après le target, y compris les sauts de ligne
+bot.onText(/^\/message\s+(\S+)\s+([\s\S]+)/, (msg, match) => {
   if (!isAdmin(msg)) return deny(msg);
-  
-  const target = match[1];
-  const text = match[2];
+
+  const target = match[1].trim();
+  const text   = match[2].trim();
 
   if (!target || !text) {
-    return bot.sendMessage(msg.chat.id, "📌 Usage :\n/message <ID> <texte>\n/message all <texte>");
+    return bot.sendMessage(msg.chat.id, '📌 Usage :\n`/message <ID> <texte>`\n`/message all <texte>`', { parse_mode: 'Markdown' });
   }
 
   const users = getUsers();
 
   if (target.toLowerCase() === 'all') {
-    let sent = 0;
-    users.forEach(user => {
+    if (!users.length) return bot.sendMessage(msg.chat.id, '⚠️ Aucun utilisateur enregistré.');
+    let sent = 0, failed = 0;
+    const promises = users.map(user =>
       bot.sendMessage(user.id, `📢 *Message du Social Club 76*\n\n${text}`, { parse_mode: 'Markdown' })
         .then(() => sent++)
-        .catch(() => {});
+        .catch(() => failed++)
+    );
+    Promise.all(promises).then(() => {
+      bot.sendMessage(msg.chat.id, `✅ Message envoyé à ${sent} utilisateur(s)${failed > 0 ? ` (${failed} échoué${failed>1?'s':''})` : ''}.`);
     });
-    bot.sendMessage(msg.chat.id, `✅ Message envoyé à ${users.length} utilisateurs.`);
   } else {
     const userId = parseInt(target);
+    if (isNaN(userId)) {
+      return bot.sendMessage(msg.chat.id, '❌ ID invalide. Doit être un nombre ou `all`.', { parse_mode: 'Markdown' });
+    }
     bot.sendMessage(userId, `📢 *Message du Social Club 76*\n\n${text}`, { parse_mode: 'Markdown' })
-      .then(() => bot.sendMessage(msg.chat.id, `✅ Message envoyé à ${userId}`))
+      .then(() => bot.sendMessage(msg.chat.id, `✅ Message envoyé à \`${userId}\``, { parse_mode: 'Markdown' }))
       .catch(err => bot.sendMessage(msg.chat.id, `❌ Impossible d'envoyer : ${err.message}`));
   }
 });
@@ -408,10 +431,13 @@ bot.on('callback_query', (query) => {
 
 // ── Machine d'état pour les réponses textuelles / médias
 bot.on('message', async (msg) => {
+  if (!msg.from) return;
+  trackUser(msg); // Toujours tracker l'utilisateur
+
   if (!isAdmin(msg)) return;
   const chatId = msg.chat.id;
   const text = msg.text || '';
-  
+
   if (text.startsWith('/')) return; // ignoré (géré par les commandes)
 
   const session = adminStates[chatId];
