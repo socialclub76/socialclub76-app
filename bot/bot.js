@@ -1,7 +1,4 @@
-// ══════════════════════════════════════════════════════════
-// SOCIAL CLUB 76 — Admin Telegram Bot + API Server
-// Gestion complète : Produits, Images, Vidéos, Avis
-// ══════════════════════════════════════════════════════════
+require('dotenv').config();
 
 const TelegramBot = require('node-telegram-bot-api');
 const express = require('express');
@@ -13,11 +10,18 @@ const http = require('http');
 const crypto = require('crypto');
 
 // ══════════════════════════════════════════════════════════
-// CONFIGURATION — À MODIFIER
+// CONFIGURATION SÉCURISÉE (.env)
 // ══════════════════════════════════════════════════════════
-const BOT_TOKEN = '8347982980:AAGM4okwAGJbfZxIM9sLoW-gxH65do5Zrqs';       // <-- Remplace par ton token @BotFather
-const ADMIN_IDS = [8585398317, 8799821161];                   // <-- Ajoute ton ID Telegram (ex: [123456789])
-const PORT = 3076;
+const BOT_TOKEN = process.env.BOT_TOKEN;
+const ADMIN_IDS = process.env.ADMIN_IDS ? process.env.ADMIN_IDS.split(',').map(id => parseInt(id.trim())) : [8585398317, 8799821161];
+const PORT = process.env.PORT || 3076;
+
+if (!BOT_TOKEN) {
+  console.error("❌ BOT_TOKEN manquant dans le fichier .env");
+  process.exit(1);
+}
+
+console.log("✅ Bot chargé avec configuration sécurisée (.env)");
 
 // Paths
 const ROOT_DIR = path.resolve(__dirname, '..');
@@ -98,6 +102,34 @@ function getLinks() {
 
 function saveLinks(data) {
   saveJSON(LINKS_FILE, data);
+}
+
+// Users tracking pour /message all
+const USERS_FILE = path.join(DATA_DIR, 'users.json');
+
+function getUsers() {
+  try {
+    return JSON.parse(fs.readFileSync(USERS_FILE, 'utf-8'));
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveUsers(data) {
+  fs.writeFileSync(USERS_FILE, JSON.stringify(data, null, 2), 'utf-8');
+}
+
+function trackUser(msg) {
+  const users = getUsers();
+  if (!users.find(u => u.id === msg.from.id)) {
+    users.push({
+      id: msg.from.id,
+      first_name: msg.from.first_name,
+      username: msg.from.username || null,
+      last_seen: new Date().toISOString()
+    });
+    saveUsers(users);
+  }
 }
 
 // ══════════════════════════════════════════════════════════
@@ -239,6 +271,10 @@ Bienvenue ! Voici tes commandes :
 /monid — Afficher ton ID Telegram
 /help — Réafficher ce message
 
+📢 *NOUVEAUTÉ*
+/message <ID> <texte> — Envoyer à une personne
+/message all <texte> — Envoyer à tout le monde
+
 
 _Ton ID: ${msg.from.id}_
   `;
@@ -279,6 +315,35 @@ bot.onText(/\/lien (\S+)\s+(.+)/, (msg, match) => {
   saveLinks(links);
   
   bot.sendMessage(msg.chat.id, `✅ Lien mis à jour !\n\n**${key}** → ${url}`, { parse_mode: 'Markdown' });
+});
+
+// ── /message <ID> <texte> ou /message all <texte> ─────────────────
+bot.onText(/\/message(?:\s+(\S+))?\s+(.+)/, (msg, match) => {
+  if (!isAdmin(msg)) return deny(msg);
+  
+  const target = match[1];
+  const text = match[2];
+
+  if (!target || !text) {
+    return bot.sendMessage(msg.chat.id, "📌 Usage :\n/message <ID> <texte>\n/message all <texte>");
+  }
+
+  const users = getUsers();
+
+  if (target.toLowerCase() === 'all') {
+    let sent = 0;
+    users.forEach(user => {
+      bot.sendMessage(user.id, `📢 *Message du Social Club 76*\n\n${text}`, { parse_mode: 'Markdown' })
+        .then(() => sent++)
+        .catch(() => {});
+    });
+    bot.sendMessage(msg.chat.id, `✅ Message envoyé à ${users.length} utilisateurs.`);
+  } else {
+    const userId = parseInt(target);
+    bot.sendMessage(userId, `📢 *Message du Social Club 76*\n\n${text}`, { parse_mode: 'Markdown' })
+      .then(() => bot.sendMessage(msg.chat.id, `✅ Message envoyé à ${userId}`))
+      .catch(err => bot.sendMessage(msg.chat.id, `❌ Impossible d'envoyer : ${err.message}`));
+  }
 });
 
 // ── /produits ───────────────────────────────────────────
