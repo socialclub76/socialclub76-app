@@ -222,7 +222,7 @@ const STATES = {
   AJOUT_HERO: 'AJOUT_HERO',
   AJOUT_DESC: 'AJOUT_DESC',
   AJOUT_ORIGIN: 'AJOUT_ORIGIN',
-  AJOUT_TASTING: 'AJOUT_TASTING',
+  AJOUT_PRICE: 'AJOUT_PRICE',
   AJOUT_GALLERY: 'AJOUT_GALLERY',
 };
 
@@ -254,7 +254,7 @@ Bienvenue ! Voici tes commandes :
 /modifier \\<id\\> \\<champ\\> \\<valeur\\> — Modifier
 
 📝 *CHAMPS MODIFIABLES*
-\`nom\`, \`desc\`, \`type\`, \`origin\`, \`tasting\`
+\`nom\`, \`desc\`, \`type\`, \`origin\`, \`prix\`
 
 🖼️ *IMAGES*
 /image \\<id\\> — Ajouter une image \\(en caption d'une photo\\)
@@ -475,14 +475,14 @@ bot.on('message', async (msg) => {
   else if (session.state === STATES.AJOUT_ORIGIN) {
     if (!session.data.specs) session.data.specs = {};
     session.data.specs.origin = text.trim();
-    session.state = STATES.AJOUT_TASTING;
-    bot.sendMessage(chatId, "Origine/Arôme enregistré.\n\nÉtape 6/7 : Quelles sont les notes de dégustation ?");
+    session.state = STATES.AJOUT_PRICE;
+    bot.sendMessage(chatId, "Origine/Arôme enregistré.\n\nÉtape 6/7 : Quel est le prix ? (ex: 10€/g, 5€/g, etc.)");
   }
-  else if (session.state === STATES.AJOUT_TASTING) {
-    session.data.specs.tasting = text.trim();
+  else if (session.state === STATES.AJOUT_PRICE) {
+    session.data.price = text.trim();
     session.state = STATES.AJOUT_GALLERY;
     session.data.images = [];
-    bot.sendMessage(chatId, "Notes enregistrées.\n\nÉtape 7/7 : Veux-tu ajouter d'autres images ou une vidéo pour la galerie ?\nEnvoie-les maintenant une par une.\n\nQuand tu as terminé, tape /fin_ajout pour valider et publier le produit.");
+    bot.sendMessage(chatId, "Prix enregistré.\n\nÉtape 7/7 : Veux-tu ajouter d'autres images ou une vidéo pour la galerie ?\nEnvoie-les maintenant une par une.\n\nQuand tu as terminé, tape /fin_ajout pour valider et publier le produit.");
   }
   else if (session.state === STATES.AJOUT_GALLERY) {
     if (msg.photo || msg.video) {
@@ -587,7 +587,7 @@ bot.onText(/\/modifier (\S+)\s+(\S+)\s+(.+)/, (msg, match) => {
     return bot.sendMessage(msg.chat.id, `❌ Produit \`${id}\` non trouvé.`, { parse_mode: 'Markdown' });
   }
 
-  const specFields = ['origin', 'tasting'];
+  const specFields = ['origin'];
   
   if (field === 'nom' || field === 'name') {
     product.name = value;
@@ -595,11 +595,13 @@ bot.onText(/\/modifier (\S+)\s+(\S+)\s+(.+)/, (msg, match) => {
     product.desc = value;
   } else if (field === 'type') {
     product.type = value;
+  } else if (field === 'prix' || field === 'price') {
+    product.price = value;
   } else if (specFields.includes(field)) {
     if (!product.specs) product.specs = {};
     product.specs[field] = value;
   } else {
-    return bot.sendMessage(msg.chat.id, `⚠️ Champ inconnu: \`${field}\`\nChamps valides: nom, desc, type, origin, tasting`, { parse_mode: 'Markdown' });
+    return bot.sendMessage(msg.chat.id, `⚠️ Champ inconnu: \`${field}\`\nChamps valides: nom, desc, type, origin, prix`, { parse_mode: 'Markdown' });
   }
 
   saveCatalogue(catalogue);

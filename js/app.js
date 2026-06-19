@@ -272,9 +272,9 @@ function renderDetail(p) {
 
   // Specs
   const sOrigin  = document.getElementById('s-origin');
-  const sTasting = document.getElementById('s-tasting');
+  const sPrice   = document.getElementById('s-price');
   if (sOrigin)  sOrigin.textContent  = p.specs?.origin  || '—';
-  if (sTasting) sTasting.textContent = p.specs?.tasting || '—';
+  if (sPrice)   sPrice.textContent   = p.price           || '—';
 
   renderProductRating(p.id);
   renderCarousel(p);

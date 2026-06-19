@@ -949,6 +949,33 @@ button,a { font-family:inherit; cursor:pointer; border:none; background:none; te
 }
 .s-val { font-size:15px; font-weight:700; color:var(--c-main); letter-spacing:1px; }
 
+/* Prix — Premium Gold Accent */
+.spec-price {
+  background: rgba(255,217,91,0.06);
+  border-color: rgba(255,217,91,0.22);
+}
+.spec-price::before {
+  background: linear-gradient(to bottom, var(--rock-gold), rgba(255,217,91,0.4));
+  box-shadow: 0 0 14px rgba(255,217,91,0.5);
+}
+.spec-price:hover {
+  background: rgba(255,217,91,0.12);
+  border-color: rgba(255,217,91,0.4);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.6), 0 0 30px rgba(255,217,91,0.15);
+}
+.spec-price .s-lbl {
+  color: var(--rock-gold);
+  text-shadow: 0 0 10px rgba(255,217,91,0.3);
+}
+.s-price-val {
+  font-family:'Cinzel',serif;
+  font-size: 22px !important;
+  font-weight: 900 !important;
+  color: var(--rock-gold) !important;
+  text-shadow: 0 0 18px rgba(255,217,91,0.35), 0 0 40px rgba(255,217,91,0.12);
+  letter-spacing: 2px !important;
+}
+
 /* Description Section */
 .det-sec { margin-bottom:50px; }
 .det-lbl {
