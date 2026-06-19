@@ -318,6 +318,10 @@ function renderCarousel(p) {
     const slide = document.createElement('div');
     slide.className = 'carousel-slide';
     slide.innerHTML = `<img src="${src}" alt="${escapeHTML(p.name)} ${i + 1}" loading="lazy"/>`;
+    // Click to open lightbox
+    slide.addEventListener('click', (e) => {
+      if (!wasDragging) openLightbox(i);
+    });
     track.appendChild(slide);
 
     const d = document.createElement('div');
@@ -326,16 +330,41 @@ function renderCarousel(p) {
     dots.appendChild(d);
   });
 
-  // Swipe support
-  let touchStartX = 0;
-  track.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].clientX; }, { passive: true });
-  track.addEventListener('touchend',   e => {
+  // Improved swipe with drag feel
+  let touchStartX = 0, touchStartY = 0, touchStartTime = 0;
+  wasDragging = false;
+  
+  track.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].clientX;
+    touchStartY = e.changedTouches[0].clientY;
+    touchStartTime = Date.now();
+    wasDragging = false;
+    track.classList.add('dragging');
+  }, { passive: true });
+  
+  track.addEventListener('touchmove', e => {
+    const dx = Math.abs(e.changedTouches[0].clientX - touchStartX);
+    const dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
+    if (dx > 10) wasDragging = true;
+    // Prevent vertical scroll when swiping horizontally
+    if (dx > dy && dx > 10) e.preventDefault();
+  }, { passive: false });
+  
+  track.addEventListener('touchend', e => {
+    track.classList.remove('dragging');
     const dx = e.changedTouches[0].clientX - touchStartX;
-    if (Math.abs(dx) > 40) goSlide(carouselN + (dx < 0 ? 1 : -1));
+    const dt = Date.now() - touchStartTime;
+    const velocity = Math.abs(dx) / dt;
+    // Swipe if distance > 30px OR fast flick
+    if (Math.abs(dx) > 30 || (velocity > 0.3 && Math.abs(dx) > 15)) {
+      goSlide(carouselN + (dx < 0 ? 1 : -1));
+    }
   });
 
   updateCarousel();
 }
+
+let wasDragging = false;
 
 function goSlide(i) {
   if (!current?.images?.length) return;
@@ -349,6 +378,84 @@ function updateCarousel() {
   document.querySelectorAll('#carousel-dots .cdot').forEach((d, i) => d.classList.toggle('on', i === carouselN));
 }
 
+// ── Lightbox ─────────────────────────────────────────────
+let lightboxIndex = 0;
+let lightboxItems = []; // {type:'img'|'video', src:'...'}
+
+function openLightbox(index) {
+  if (!current) return;
+  lightboxItems = [];
+  
+  // Add gallery images
+  if (current.images) {
+    current.images.forEach(src => lightboxItems.push({ type: 'img', src }));
+  }
+  // Add video if exists
+  if (current.video) {
+    lightboxItems.push({ type: 'video', src: current.video });
+  }
+  
+  if (!lightboxItems.length) return;
+  lightboxIndex = Math.min(index, lightboxItems.length - 1);
+  
+  const lb = document.getElementById('lightbox');
+  if (lb) {
+    lb.classList.add('open');
+    lb.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    renderLightboxContent();
+  }
+}
+
+function closeLightbox() {
+  const lb = document.getElementById('lightbox');
+  if (lb) {
+    lb.classList.remove('open');
+    lb.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    // Stop any playing video
+    const vid = lb.querySelector('video');
+    if (vid) vid.pause();
+  }
+}
+
+function renderLightboxContent() {
+  const content = document.getElementById('lightbox-content');
+  const counter = document.getElementById('lightbox-counter');
+  if (!content) return;
+  
+  const item = lightboxItems[lightboxIndex];
+  if (item.type === 'video') {
+    content.innerHTML = `<video src="${item.src}" controls playsinline autoplay></video>`;
+  } else {
+    content.innerHTML = `<img src="${item.src}" alt="Gallery ${lightboxIndex + 1}"/>`;
+  }
+  
+  if (counter) {
+    counter.textContent = `${lightboxIndex + 1} / ${lightboxItems.length}`;
+  }
+  
+  // Hide/show nav arrows
+  const prev = document.getElementById('lightbox-prev');
+  const next = document.getElementById('lightbox-next');
+  if (prev) prev.style.display = lightboxIndex <= 0 ? 'none' : 'flex';
+  if (next) next.style.display = lightboxIndex >= lightboxItems.length - 1 ? 'none' : 'flex';
+}
+
+function lightboxPrev() {
+  if (lightboxIndex > 0) {
+    lightboxIndex--;
+    renderLightboxContent();
+  }
+}
+
+function lightboxNext() {
+  if (lightboxIndex < lightboxItems.length - 1) {
+    lightboxIndex++;
+    renderLightboxContent();
+  }
+}
+
 // ── Video ──────────────────────────────────────────────────
 function renderVideo(p) {
   const sec = document.getElementById('det-video-sec');
@@ -357,9 +464,16 @@ function renderVideo(p) {
   if (p.video) {
     sec.style.display = 'block';
     box.innerHTML = `<video src="${p.video}" controls preload="metadata" playsinline></video>`;
+    // Click video box to open in lightbox
+    box.style.cursor = 'pointer';
+    box.onclick = () => {
+      const imgCount = (p.images || []).length;
+      openLightbox(imgCount); // video is after all images
+    };
   } else {
     sec.style.display = 'none';
     box.innerHTML = '';
+    box.onclick = null;
   }
 }
 
@@ -653,13 +767,49 @@ document.addEventListener('DOMContentLoaded', async () => {
     panel.style.display = panel.id === 'hub-panel-links' ? 'block' : 'none';
   });
 
-  // Keyboard carousel
+  // Keyboard carousel + lightbox
   document.addEventListener('keydown', e => {
+    // Lightbox keys
+    const lb = document.getElementById('lightbox');
+    if (lb && lb.classList.contains('open')) {
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') lightboxPrev();
+      if (e.key === 'ArrowRight') lightboxNext();
+      return;
+    }
+    // Carousel keys
     const vp = document.getElementById('view-product');
     if (!vp || !vp.classList.contains('active')) return;
     if (e.key === 'ArrowLeft')  goSlide(carouselN - 1);
     if (e.key === 'ArrowRight') goSlide(carouselN + 1);
   });
+
+  // ── Lightbox event bindings ─────────────────────────────
+  const lbClose = document.getElementById('lightbox-close');
+  const lbPrev  = document.getElementById('lightbox-prev');
+  const lbNext  = document.getElementById('lightbox-next');
+  const lb      = document.getElementById('lightbox');
+  
+  if (lbClose) lbClose.addEventListener('click', closeLightbox);
+  if (lbPrev)  lbPrev.addEventListener('click', lightboxPrev);
+  if (lbNext)  lbNext.addEventListener('click', lightboxNext);
+  
+  // Click outside content to close
+  if (lb) {
+    lb.addEventListener('click', e => {
+      if (e.target === lb || e.target.id === 'lightbox-content') closeLightbox();
+    });
+    
+    // Swipe in lightbox
+    let lbTouchX = 0;
+    lb.addEventListener('touchstart', e => { lbTouchX = e.changedTouches[0].clientX; }, { passive: true });
+    lb.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - lbTouchX;
+      if (Math.abs(dx) > 50) {
+        if (dx < 0) lightboxNext(); else lightboxPrev();
+      }
+    });
+  }
 
   show('view-home');
 });
