@@ -405,7 +405,7 @@ bot.on('callback_query', (query) => {
   const chatId = query.message.chat.id;
   const fromId = query.from.id;  // ← Correction ici
 
-  if (!ADMIN_IDS.length === 0 && !ADMIN_IDS.includes(fromId)) {
+  if (ADMIN_IDS.length > 0 && !ADMIN_IDS.includes(fromId)) {
     return bot.answerCallbackQuery(query.id, { text: "⛔ Accès refusé." });
   }
   
